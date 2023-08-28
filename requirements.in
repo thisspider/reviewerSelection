@@ -15,3 +15,4 @@ pyalex # For working with the OpenAlex.org API.
 pre-commit # For automatically running checks during committing.
 black # Autoformatting according to PEP8.
 ruff  # Very fast Rust linter.
+pdbpp  # A drop-in replacement for pdb.
