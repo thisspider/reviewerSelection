@@ -1,0 +1,17 @@
+# Minimal requirements given by LeWagon
+pytest
+pylint
+ipdb
+jupyterlab
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+
+pyalex # For working with the OpenAlex.org API.
+
+# Development
+pre-commit # For automatically running checks during committing.
+black # Autoformatting according to PEP8.
+ruff  # Very fast Rust linter.
