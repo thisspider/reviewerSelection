@@ -1,1 +1,41 @@
-raw_data/
+.python-version
+/.env*
+/raw_data/
+
+# Compiled Python
+*.py[cod]
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+.cache
+htmlcov
+
+# Editor configs
+.mr.developer.cfg
+.project
+.pydevproject
+*.sublime*
+*.code-workspace
+
+# Emacs backups
+*~
