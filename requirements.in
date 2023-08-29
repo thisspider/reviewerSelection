@@ -10,6 +10,7 @@ seaborn
 scikit-learn
 
 pyalex # For working with the OpenAlex.org API.
+python-slugify[unidecode]  # For simplifying strings to ease the matching process.
 
 # Development
 pre-commit # For automatically running checks during committing.
