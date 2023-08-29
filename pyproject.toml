@@ -3,3 +3,7 @@ python_files = [
   "test_*.py",
   "tests.py"
 ]
+
+[tool.interrogate]
+fail-under = 0
+exclude = ["*/tests",]
