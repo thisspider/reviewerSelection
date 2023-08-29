@@ -39,3 +39,6 @@ htmlcov
 
 # Emacs backups
 *~
+
+# MacOS stuff
+.DS_Store
