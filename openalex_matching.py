@@ -14,6 +14,9 @@ def rapidfuzz_match(extracted_references: list, openalex_works: list, scorer = f
     top_names = []
     top_scores = []
     top_indexes = []
+    second_scores = []
+    second_indexes = []
+    second_names = []
     choices = openalex_works
     for reference in extracted_references:
         # possible scorers are fuzz.WRatio , fuzz.partial_ratio , fuzz.token_set_ratio , fuzz.partial_token_set_ratio , fuzz.token_sort_ratio
@@ -26,8 +29,14 @@ def rapidfuzz_match(extracted_references: list, openalex_works: list, scorer = f
         top_indexes.append(top_index)
         top_match.append(top)
         second_match.append(second)
+        second_score = second[1]
+        second_index = second[2]
+        second_name = second[0]
+        second_names.append(second_name)
+        second_scores.append(second_score)
+        second_indexes.append(second_index)
         third_match.append(third)
-    matched_df = pd.DataFrame(list(zip(extracted_references, top_match,top_names, top_scores, top_indexes, second_match, third_match)), columns=['extracted_reference', 'top_match', 'top_names', 'top_scores', 'top_indexes', 'second_match', 'third_match'])
+    matched_df = pd.DataFrame(list(zip(extracted_references, top_match,top_names, top_scores, top_indexes, second_match, second_names, second_scores, second_indexes, third_match)), columns=['extracted_reference', 'top_match', 'top_names', 'top_scores', 'top_indexes', 'second_match', 'second_names', 'second_scores', 'second_indexes', 'third_match'])
     return matched_df
 
 '''
