@@ -1,6 +1,9 @@
 from rapidfuzz import process, fuzz
 import pandas as pd
 
+'''
+    Warning: choices and extracted_references subjected to change
+'''
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
 extracted_references = ["Cowboys", "Falcons"]
 
@@ -18,6 +21,10 @@ def rapidfuzz_match(extracted_references: list, openalex_works: list, scorer = f
     matched_df = pd.DataFrame(list(zip(extracted_references, top_match, second_match, third_match)), columns=['extracted_reference', 'top_match', 'second_match', 'third_match'])
     return matched_df
 
+'''
+    Optional: Can fold get_unique_ids into rapidfuzz_match if refactoring is neccessary
+    Both return the same Dataframe
+'''
 def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
     openalex_ids = []
     for top_match in matched_df['top_match']:
