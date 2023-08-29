@@ -52,7 +52,6 @@ def get_authors(restrictions=False):
     for author in authors:
         first_last = author['display_name'].split(' ')
         author['display_name'] = first_last[0] + ' ' + first_last[-1]
-        print(author['display_name'])
     if restrictions:
         authors = [a['display_name'] for a in authors if a['display_name'] not in restricted_names]
 
@@ -83,6 +82,5 @@ def extract_matches(author_names: list, restrict_authors: list, extract_one=Fals
             res = {
                     author: process.extract(author, restrict_authors)
                 }
-            print(res)
         matches.append(res)
     return matches
