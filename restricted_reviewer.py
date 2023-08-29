@@ -7,14 +7,42 @@ api_uri = f'https://api.openalex.org/works?filter=primary_location.source.id:{so
 resp = requests.get(api_uri).json()
 results = resp['results']
 results_df = pd.DataFrame(results)
-restricted = ['Edward Witten']
+
+"""
+Steps to extract and consolidate names:
+    Input: string of url/path for csv
+        restricted_general = './consolidated restricted/RESTRICTED GENERAL-Table 1.csv'
+        restricted_consulting = './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
+        unavailable = './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
+    Output:
+        arr[str]
+"""
+def retrieve_restricted_names(restricted_general: str, restricted_consulting: str, unavailable:str):
+    restricted_general = pd.read_csv(restricted_general)
+    restricted_consulting = pd.read_csv(restricted_consulting, header=None)
+    unavailable = pd.read_csv(unavailable, header=None)
+    restricted_general = restricted_general.drop(columns=['Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'])
+    restricted_consulting = restricted_consulting.drop(columns=[1, 2, 3, 4])
+    restricted_general['Full Name'] = restricted_general['Reviewer First Name'] + ' ' + restricted_general['Reviewer Last Name']
+    restricted_consulting.columns = ['Full Name']
+    restricted_general = restricted_general[['Full Name']]
+    unavailable['Full Name'] = unavailable[0]
+    unavailable = unavailable[['Full Name']]
+    restricted_names = pd.concat([restricted_consulting,restricted_general, unavailable],ignore_index=True)
+    return restricted_names['Full Name'].array
+'''
+    Warning: Paths may be subjected to change and retrieving restricted names will depend on folder architecture
+'''
+restricted_general = './consolidated restricted/RESTRICTED GENERAL-Table 1.csv'
+restricted_consulting = './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
+unavailable = './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
+restricted_names = retrieve_restricted_names(restricted_general, restricted_consulting, unavailable)
 
 def get_authors(restrictions=False):
     authors = []
     for result in results:
         for authorship in result['authorships']:
-            #    for author in authorship['author']:
-                    # print(id)
+
             author = {
                 'display_name': authorship['author']['display_name'],
                 'id': authorship['author']['id']
@@ -25,27 +53,9 @@ def get_authors(restrictions=False):
         author['display_name'] = first_last[0] + ' ' + first_last[-1]
         print(author['display_name'])
     if restrictions:
-        authors = [a['display_name'] for a in authors if a['display_name'] not in restricted]
+        authors = [a['display_name'] for a in authors if a['display_name'] not in restricted_names]
 
     return authors
-"""
-Steps to extract and consolidate names: (probably no longer needed)
-    restricted_general = pd.read_csv('./consolidated restricted/RESTRICTED GENERAL-Table 1.csv')
-    restricted_consulting = pd.read_csv('./consolidated restricted/RESTRICTED CONSULTING-Table 1.csv')
-    unavailable = pd.read_csv('./consolidated restricted/RESTRICTED CONSULTING-Table 1.csv')
-    restricted_general = restricted_general.drop(columns=['Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'])
-    restricted_general['Full Name'] = restricted_general['Reviewer First Name'] + ' ' + restricted_general['Reviewer Last Name']
-    reviewer_names = restricted_general[['Full Name']]
-    restricted_consulting = restricted_consulting.drop(columns=['Unnamed: 1', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'])
-    reviewer_names
-    restricted_consulting = restricted_consulting[['Full Name']]
-    unavailable = unavailable[['Full Name']]
-    reviewer_names = pd.concat([restricted_consulting, reviewer_names])
-    reviewer_names = pd.concat([reviewer_names, unavailable], ignore_index=True)
-    reviewer_names
-    reviewer_names.to_csv('./reviewer_names.csv', encoding='utf-8', index=False)
-"""
-
 '''
     Using fuzzywuzzy to iterate through list of author names and checking against list of restricted names
     Input:
