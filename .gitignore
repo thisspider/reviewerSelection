@@ -40,5 +40,13 @@ htmlcov
 # Emacs backups
 *~
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 # MacOS stuff
+=======
+# Mac
+>>>>>>> ca432d3 (Changed gitignore to ignore DS_Store)
+=======
+# Mac
+>>>>>>> ca432d3a1cc04bf7949c74cbbbd9ef53af8fa678
 .DS_Store
