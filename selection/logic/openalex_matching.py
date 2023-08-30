@@ -108,7 +108,18 @@ test.head()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def cosine_match(target_ref:str, open_alex_works: list, n_grams=(1,2), use_idf=False):
+=======
+def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
+    similarities = []
+    target_vectorizor = TfidfVectorizer(use_idf=use_idf)
+    target_vector = target_vectorizor.fit_transform(target_ref)
+    vectorizer = TfidfVectorizer(use_idf=use_idf)
+    vectors = vectorizer.fit_transform(open_alex_works)
+    for i in range(len(open_alex_works)):
+    #     cosine_similarity(np.array(vectors[0], vectors[i]))
+>>>>>>> ad328b5 (get_cosine_similarity)
 
     similarities = []
     vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
@@ -132,6 +143,7 @@ def get_cosine_similarity(full_df: list, target_ref: str, n_grams=None, use_idf=
     full_df.merge(similarities[[cosine_similarity]], how='inner', on='oa_id')
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 0cc7eb6 (Similarity comparison)
@@ -199,3 +211,5 @@ def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
         similarities.append(work_similarity)
     return similarities
 >>>>>>> 0cc7eb6 (Similarity comparison)
+=======
+>>>>>>> ad328b5 (get_cosine_similarity)
