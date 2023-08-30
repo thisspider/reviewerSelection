@@ -32,6 +32,8 @@ black==23.7.0
     # via -r requirements.in
 bleach==6.0.0
     # via nbconvert
+build==0.10.0
+    # via pip-tools
 certifi==2023.7.22
     # via requests
 cffi==1.15.1
@@ -41,7 +43,9 @@ cfgv==3.4.0
 charset-normalizer==3.2.0
     # via requests
 click==8.1.7
-    # via black
+    # via
+    #   black
+    #   pip-tools
 comm==0.1.4
     # via ipykernel
 contourpy==1.1.0
@@ -201,6 +205,7 @@ overrides==7.4.0
 packaging==23.1
     # via
     #   black
+    #   build
     #   ipykernel
     #   jupyter-server
     #   jupyterlab
@@ -226,6 +231,8 @@ pickleshare==0.7.5
     # via ipython
 pillow==10.0.0
     # via matplotlib
+pip-tools==7.3.0
+    # via -r requirements.in
 platformdirs==3.10.0
     # via
     #   black
@@ -261,6 +268,8 @@ pylint==2.17.5
     # via -r requirements.in
 pyparsing==3.0.9
     # via matplotlib
+pyproject-hooks==1.0.0
+    # via build
 pyrepl==0.9.0
     # via fancycompleter
 pytest==7.4.0
@@ -342,9 +351,12 @@ tinycss2==1.2.1
 tomli==2.0.1
     # via
     #   black
+    #   build
     #   ipdb
     #   jupyterlab
+    #   pip-tools
     #   pylint
+    #   pyproject-hooks
     #   pytest
 tomlkit==0.12.1
     # via pylint
@@ -393,10 +405,13 @@ webencodings==0.5.1
     #   tinycss2
 websocket-client==1.6.2
     # via jupyter-server
+wheel==0.41.2
+    # via pip-tools
 wmctrl==0.4
     # via pdbpp
 wrapt==1.15.0
     # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
+# pip
 # setuptools

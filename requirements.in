@@ -11,6 +11,7 @@ scikit-learn
 
 pyalex # For working with the OpenAlex.org API.
 python-slugify[unidecode]  # For simplifying strings to ease the matching process.
+pip-tools
 
 # Development
 pre-commit # For automatically running checks during committing.
