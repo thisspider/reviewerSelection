@@ -3,7 +3,6 @@ import pandas as pd
 
 # oa_id_list = ["W2741809807", "W1560783210", "W2029057325", "W2160597895"]
 
-
 def extract_refs(oa_id_list):
     """
     extracts references from manuscript (first layer) and references
