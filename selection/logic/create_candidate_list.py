@@ -12,7 +12,7 @@ def extract_refs(oa_id_list):
     """
 
 
-    oa_id_list = temp
+    #oa_id_list = temp
 
     first_layer_full = []
     for ref in range(0, len(oa_id_list), 25):
@@ -23,7 +23,7 @@ def extract_refs(oa_id_list):
             {i for lists in first_layer for i in lists}
         )  # list comprehension returning a set
         first_layer_full.append(first_layer)
-        print(len(first_layer_full))
+        #print(len(first_layer_full))
 
     first_layer_full.append(oa_id_list)
 
@@ -70,4 +70,4 @@ def create_ref_csv(refs):
     )
 
 
-ref_csv = create_ref_csv(refs)
+#ref_csv = create_ref_csv(refs)

@@ -1,4 +1,4 @@
-from openalex_matching import rapidfuzz_match, get_unique_ids
+from selection.logic.openalex_matching import rapidfuzz_match, get_unique_ids
 import pandas as pd
 from rapidfuzz import fuzz
 import time
@@ -16,7 +16,7 @@ def get_openalex_from_path(oa_path):
 
 # openalex_works = get_openalex_from_path(oa_path)
 
-def merge_references_oaworks(extracted_references: dataframe, openalex_works: dataframe, scorer=fuzz.token_sort_ratio):
+def merge_references_oaworks(extracted_references: pd.DataFrame, openalex_works: pd.DataFrame, scorer=fuzz.token_sort_ratio):
     '''
     Take as an input two dataframes.
     '''
@@ -30,4 +30,4 @@ def merge_references_oaworks(extracted_references: dataframe, openalex_works: da
     end_time = time.time()
 
     print(f"Time taken: {end_time - start_time} seconds")
-    return list(matched_df_oa['id'])
+    return matched_df_oa['id']
