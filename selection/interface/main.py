@@ -12,13 +12,28 @@ from selection.logic.restricted_reviewer import *
 #3 Select reviewers from candidate list
 
 
-def pdf_matching(path: string):
+def pdf_matching(path: str):
+
+    # Extract the references out of the pdf
     pdf = PDF(path)
+    extracted_references = pdf.references
 
-    return pdf
+    # Load the dataframe with all of the relevant works
+    def load_data(path):
+        return pd.read_csv(path)
 
-def candidate_list():
-    pass
+    all_works_df = load_data('..../all_works_sociology.csv')
+
+    # Fuzzymatch the works dataframe with the extracted references -> merge
+    #merge...
+
+    return merged_list
+
+
+def candidate_list(id_list):
+    curr_df = extract_refs(id_list)
+
+    return curr_df
 
 def select_reviewers():
     pass
