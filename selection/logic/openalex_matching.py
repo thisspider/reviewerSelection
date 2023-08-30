@@ -97,35 +97,26 @@ test = rapidfuzz_match(
 )
 test.head()
 
-def text_similarity(text1, text2):
-    # Tokenize and lemmatize the texts
-    tokens1 = word_tokenize(text1)
-    tokens2 = word_tokenize(text2)
-    lemmatizer = WordNetLemmatizer()
-    tokens1 = [lemmatizer.lemmatize(token) for token in tokens1]
-    tokens2 = [lemmatizer.lemmatize(token) for token in tokens2]
-
-    # Remove stopwords
-    stop_words = stopwords.words('english')
-    tokens1 = [token for token in tokens1 if token not in stop_words]
-    tokens2 = [token for token in tokens2 if token not in stop_words]
-
-    # Create the TF-IDF vectors
-    vectorizer = TfidfVectorizer()
-    vector1 = vectorizer.fit_transform(tokens1)
-    vector2 = vectorizer.transform(tokens2)
-
-    # Calculate the cosine similarity
-    similarity = cosine_similarity(vector1, vector2)
-
-    return similarity
-
-def cosine_match(target_ref:str, open_alex_works: list):
+def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
     similarities = []
-    for work in open_alex_works:
-        similarity = text_similarity(target_ref, work)
-        work_similarity = {
-                work: similarity
-            }
-        similarities.append(work_similarity)
+    target_vectorizor = TfidfVectorizer(use_idf=use_idf)
+    target_vector = target_vectorizor.fit_transform(target_ref)
+    vectorizer = TfidfVectorizer(use_idf=use_idf)
+    vectors = vectorizer.fit_transform(open_alex_works)
+    for i in range(len(open_alex_works)):
+    #     cosine_similarity(np.array(vectors[0], vectors[i]))
+
+    #     # Calculate the cosine similarity between the vectors
+        similarity = [ open_alex_works.iloc[i]['work_id'],cosine_similarity(target_vector, vectors[i]), open_alex_works.iloc[i]['abstract_content']]
+    #     # cosine_similarity(vectors[0], vectors[i]) for i in range ...
+    # cosine_similarity( np.array( vectors[index for query] , vectors[index for comparison] ) )
+
+    similarities.append(similarity)
     return similarities
+
+def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
+    open_alex_works = full_df[['work_id', 'abstract_content']]
+    similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
+    full_df.merge(similarities[[cosine_similarity]], how='inner', on='work_id')
+    return full_df
+    # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
