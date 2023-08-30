@@ -5,10 +5,14 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 <<<<<<< HEAD
+<<<<<<< HEAD
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 =======
 from sklearn.feature_extraction.text import TfidfVectorizer
 >>>>>>> ddfd47b (Similarity comparison)
+=======
+from sklearn.feature_extraction.text import TfidfVectorizer
+>>>>>>> 0cc7eb6 (Similarity comparison)
 from sklearn.metrics.pairwise import cosine_similarity
 
 """
@@ -103,6 +107,7 @@ test.head()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 def cosine_match(target_ref:str, open_alex_works: list, n_grams=(1,2), use_idf=False):
 
     similarities = []
@@ -128,6 +133,8 @@ def get_cosine_similarity(full_df: list, target_ref: str, n_grams=None, use_idf=
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
 =======
+=======
+>>>>>>> 0cc7eb6 (Similarity comparison)
 def text_similarity(text1, text2):
     # Tokenize and lemmatize the texts
     tokens1 = word_tokenize(text1)
@@ -152,6 +159,7 @@ def text_similarity(text1, text2):
     return similarity
 
 def cosine_match(target_ref:str, open_alex_works: list):
+<<<<<<< HEAD
 =======
 def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
 >>>>>>> 9362bc4 (Created cosine similarity function)
@@ -181,3 +189,13 @@ def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
 >>>>>>> 9362bc4 (Created cosine similarity function)
+=======
+    similarities = []
+    for work in open_alex_works:
+        similarity = text_similarity(target_ref, work)
+        work_similarity = {
+                work: similarity
+            }
+        similarities.append(work_similarity)
+    return similarities
+>>>>>>> 0cc7eb6 (Similarity comparison)
