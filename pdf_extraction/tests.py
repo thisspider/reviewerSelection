@@ -1,12 +1,10 @@
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
-from slugify import slugify
-from tqdm import tqdm
 
-from ..pdf import get_authors, get_references, get_title
-from ..polite_pyalex import pyalex
+from pdf_extraction import PDF
 
 EXAMPLE_MANUSCRIPT = (
     Path(__file__).resolve().parents[0]
@@ -14,6 +12,31 @@ EXAMPLE_MANUSCRIPT = (
     / "EXAMPLE_MANUSCRIPT"
 )
 OPENALEX_JSON = EXAMPLE_MANUSCRIPT / "OPENALEX_JSON"
+
+
+def test_python_api():
+    """Make sure that the extraction can be run from within Python."""
+
+    pdf_file = EXAMPLE_MANUSCRIPT / "AJS_1_teeger2023.pdf"
+    pdf = PDF(pdf_file, references=False)
+
+    assert pdf.title
+    assert pdf.abstract
+    assert pdf.authors
+    assert pdf.references == []
+    assert pdf.references_slugified == []
+
+
+def test_cli_api():
+    """Make sure that the extraction can be run from the command line."""
+    pdf_file = EXAMPLE_MANUSCRIPT / "AJS_1_teeger2023.pdf"
+    res = subprocess.run(
+        ["./pdf_extraction/pdf.py", pdf_file, "--no-references"], stdout=subprocess.PIPE
+    )
+    assert (
+        "Title: (Not) Feeling the Past: Boredom as a Racialized Emotion"
+        in res.stdout.strip().decode()
+    )
 
 
 @pytest.mark.parametrize(
@@ -38,30 +61,7 @@ def test_reference_count(pdf_path, json_path):
         data = json.load(f)
         num_references_openalex = len(data["referenced_works"])
 
-    assert len(get_references(pdf_path)) == num_references_openalex
-
-
-def get_references_from_openalex_json_file(json_path):
-    with json_path.open() as f:
-        data = json.load(f)
-
-    references = []
-    referenced_works = data["referenced_works"]
-
-    for article in tqdm(referenced_works):
-        article = pyalex.Works()[article]
-        authors = [
-            author["author"]["display_name"] for author in article["authorships"]
-        ]
-        year = article["publication_year"]
-        title = article.get("title", "")
-        references.append(f"{', '.join(authors)}. {year}. {title}")
-
-    references_openalex = [slugify(ref) for ref in references]
-
-    with Path("output.txt").open("w") as fh:
-        for ref in references_openalex:
-            fh.write(ref)
+    assert len(PDF(pdf_path).references) == num_references_openalex
 
 
 @pytest.mark.parametrize(
@@ -115,7 +115,7 @@ def get_references_from_openalex_json_file(json_path):
 )
 def test_title(pdf_path: str, title: str):
     """Test that the title obtained via `get_title()` is the same as in the PDF."""
-    assert get_title(pdf_path)[0] == title
+    assert PDF(pdf_path, references=False).title == title
 
 
 @pytest.mark.parametrize(
@@ -154,4 +154,4 @@ def test_title(pdf_path: str, title: str):
 )
 def test_authors(pdf_path: str, authors: list[str]):
     """Test that the title obtained via `get_title()` is the same as in the PDF."""
-    assert get_authors(pdf_path) == authors
+    assert PDF(pdf_path, references=False).authors == authors
