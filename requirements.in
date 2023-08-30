@@ -11,7 +11,8 @@ scikit-learn
 
 pyalex # For working with the OpenAlex.org API.
 python-slugify[unidecode]  # For simplifying strings to ease the matching process.
-pip-tools
+refextract
+pdfquery
 rapidfuzz
 
 # Development
@@ -19,3 +20,4 @@ pre-commit # For automatically running checks during committing.
 black # Autoformatting according to PEP8.
 ruff  # Very fast Rust linter.
 pdbpp  # A drop-in replacement for pdb.
+pip-tools
