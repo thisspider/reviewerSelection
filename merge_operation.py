@@ -30,4 +30,4 @@ def merge_references_oaworks(extracted_references: dataframe, openalex_works: da
     end_time = time.time()
 
     print(f"Time taken: {end_time - start_time} seconds")
-    return matched_df_oa['id']
+    return list(matched_df_oa['id'])
