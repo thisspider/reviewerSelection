@@ -62,7 +62,6 @@ def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
 test = rapidfuzz_match(extracted_references=extracted_references, openalex_works=choices)
 test.head()
 
-<<<<<<< HEAD
 def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
     similarities = []
     target_vectorizor = TfidfVectorizer(use_idf=use_idf)
@@ -86,37 +85,3 @@ def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
     full_df.merge(similarities[[cosine_similarity]], how='inner', on='work_id')
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
-=======
-def text_similarity(text1, text2):
-    # Tokenize and lemmatize the texts
-    tokens1 = word_tokenize(text1)
-    tokens2 = word_tokenize(text2)
-    lemmatizer = WordNetLemmatizer()
-    tokens1 = [lemmatizer.lemmatize(token) for token in tokens1]
-    tokens2 = [lemmatizer.lemmatize(token) for token in tokens2]
-
-    # Remove stopwords
-    stop_words = stopwords.words('english')
-    tokens1 = [token for token in tokens1 if token not in stop_words]
-    tokens2 = [token for token in tokens2 if token not in stop_words]
-
-    # Create the TF-IDF vectors
-    vectorizer = TfidfVectorizer()
-    vector1 = vectorizer.fit_transform(tokens1)
-    vector2 = vectorizer.transform(tokens2)
-
-    # Calculate the cosine similarity
-    similarity = cosine_similarity(vector1, vector2)
-
-    return similarity
-
-def cosine_match(target_ref:str, open_alex_works: list):
-    similarities = []
-    for work in open_alex_works:
-        similarity = text_similarity(target_ref, work)
-        work_similarity = {
-                work: similarity
-            }
-        similarities.append(work_similarity)
-    return similarities
->>>>>>> 578aeaec3b310a1ae0269d9c8104163ae9d2e172
