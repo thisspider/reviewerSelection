@@ -3,7 +3,7 @@ from selection.logic.create_candidate_list import extract_refs, create_ref_csv
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import rapidfuzz_match
 import pandas as pd
-
+from pathlib import Path
 
 #1 Link pdf to openalex
 # Extraction and matching
@@ -11,7 +11,6 @@ import pandas as pd
 #2 Create candidate list
 
 #3 Select reviewers from candidate list
-
 
 def pdf_matching(path: str):
     '''
@@ -29,7 +28,8 @@ def pdf_matching(path: str):
     def load_data(path):
         return pd.read_csv(path)
 
-    all_works_df = load_data('../../all_works_sociology.csv')
+    start_path = Path(__file__).parents[2] / 'all_works_sociology.csv'
+    all_works_df = load_data(str(start_path))
 
 
     # Fuzzymatch the works dataframe with the extracted references -> merge
@@ -80,10 +80,10 @@ def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
     return match_df
 
 #Test 1
-# matched_pdf = pdf_matching('/home/nklin/code/thisspider/reviewerSelection-data/EXAMPLE_MANUSCRIPT/AJS_2_Sugie2023.pdf')
-# print(matched_pdf)
+matched_pdf = pdf_matching('test.pdf')
+print(matched_pdf)
 
-#Test 2
+# #Test 2
 # df = pd.read_csv('/home/nklin/code/thisspider/reviewerSelection/canttype.csv')
 # df_as_list = list(df['0'])
 # curr_list = candidate_df(df_as_list)
