@@ -9,6 +9,8 @@ matplotlib
 seaborn
 scikit-learn
 spacy
+python-multipart
+streamlit
 
 pyalex # For working with the OpenAlex.org API.
 python-slugify[unidecode]  # For simplifying strings to ease the matching process.

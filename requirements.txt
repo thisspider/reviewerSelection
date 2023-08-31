@@ -380,6 +380,8 @@ python-json-logger==2.0.7
     # via jupyter-events
 python-magic==0.4.27
     # via refextract
+python-multipart==0.0.6
+    # via -r requirements.in
 python-slugify[unidecode]==8.0.1
     # via -r requirements.in
 pytz==2023.3
