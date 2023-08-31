@@ -4,7 +4,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 '''
@@ -62,26 +62,27 @@ def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
 test = rapidfuzz_match(extracted_references=extracted_references, openalex_works=choices)
 test.head()
 
-def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
-    similarities = []
-    target_vectorizor = TfidfVectorizer(use_idf=use_idf)
-    target_vector = target_vectorizor.fit_transform(target_ref)
-    vectorizer = TfidfVectorizer(use_idf=use_idf)
-    vectors = vectorizer.fit_transform(open_alex_works)
-    for i in range(len(open_alex_works)):
-    #     cosine_similarity(np.array(vectors[0], vectors[i]))
+def cosine_match(target_ref:str, open_alex_works: list, n_grams=(1,2), use_idf=False):
 
-    #     # Calculate the cosine similarity between the vectors
-        similarity = [ open_alex_works.iloc[i]['work_id'],cosine_similarity(target_vector, vectors[i]), open_alex_works.iloc[i]['abstract_content']]
-    #     # cosine_similarity(vectors[0], vectors[i]) for i in range ...
+    similarities = []
+    vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
+    vectors = vectorizer.fit_transform(open_alex_works['abstracts'])
+    target_vector = vectorizer.transform(target_ref['abstracts'])
+
+    for i in range(len(open_alex_works)):
+#     cosine_similarity(np.array(vectors[0], vectors[i]))
+
+#     # Calculate the cosine similarity between the vectors
+        similarity = [open_alex_works.iloc[i]['oa_id'], open_alex_works.iloc[i]['abstracts'],cosine_similarity(target_vector, vectors[i])]
+#     # cosine_similarity(vectors[0], vectors[i]) for i in range ...
     # cosine_similarity( np.array( vectors[index for query] , vectors[index for comparison] ) )
 
-    similarities.append(similarity)
+        similarities.append(similarity)
     return similarities
 
-def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
-    open_alex_works = full_df[['work_id', 'abstract_content']]
+def get_cosine_similarity(full_df: list, target_ref: str, n_grams=None, use_idf=True):
+    open_alex_works = full_df[['oa_id', 'abstracts']]
     similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
-    full_df.merge(similarities[[cosine_similarity]], how='inner', on='work_id')
+    full_df.merge(similarities[[cosine_similarity]], how='inner', on='oa_id')
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
