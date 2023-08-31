@@ -6,6 +6,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 =======
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -13,6 +14,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 =======
 from sklearn.feature_extraction.text import TfidfVectorizer
 >>>>>>> 0cc7eb6 (Similarity comparison)
+=======
+from sklearn.feature_extraction.text import TfidfVectorizer
+>>>>>>> b7b2743 (merge conflicts)
 from sklearn.metrics.pairwise import cosine_similarity
 
 """
@@ -109,6 +113,9 @@ test.head()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b7b2743 (merge conflicts)
 def cosine_match(target_ref:str, open_alex_works: list, n_grams=(1,2), use_idf=False):
 =======
 def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
@@ -141,6 +148,7 @@ def get_cosine_similarity(full_df: list, target_ref: str, n_grams=None, use_idf=
     open_alex_works = full_df[['oa_id', 'abstracts']]
     similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
     full_df.merge(similarities[[cosine_similarity]], how='inner', on='oa_id')
+<<<<<<< HEAD
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
 <<<<<<< HEAD
@@ -198,6 +206,8 @@ def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
     open_alex_works = full_df[['work_id', 'abstract_content']]
     similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
     full_df.merge(similarities[[cosine_similarity]], how='inner', on='work_id')
+=======
+>>>>>>> b7b2743 (merge conflicts)
     return full_df
     # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
 >>>>>>> 9362bc4 (Created cosine similarity function)
