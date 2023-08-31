@@ -1,7 +1,7 @@
 from pyalex import Works
 import pandas as pd
 
-#oa_id_list = ["W2741809807", "W1560783210", "W2029057325", "W2160597895"]
+# oa_id_list = ["W2741809807", "W1560783210", "W2029057325", "W2160597895"]
 
 
 def extract_refs(oa_id_list):
@@ -11,8 +11,7 @@ def extract_refs(oa_id_list):
     based on OpenAlex ids retrieved from manuscript
     """
 
-
-    #oa_id_list = temp
+    # oa_id_list = temp
 
     first_layer_full = []
     for ref in range(0, len(oa_id_list), 25):
@@ -23,14 +22,13 @@ def extract_refs(oa_id_list):
             {i for lists in first_layer for i in lists}
         )  # list comprehension returning a set
         first_layer_full.append(first_layer)
-        #print(len(first_layer_full))
+        # print(len(first_layer_full))
 
     first_layer_full.append(oa_id_list)
 
     first_layer_full = list(
-    {i for lists in first_layer_full for i in lists}
+        {i for lists in first_layer_full for i in lists}
     )  # list comprehension returning a set
-
 
     ## second layer
     second_layer = []
@@ -41,7 +39,8 @@ def extract_refs(oa_id_list):
     final = [entry for lists in second_layer for entry in lists]
     return final
 
-#refs = extract_refs(oa_id_list)
+
+# refs = extract_refs(oa_id_list)
 
 
 def create_ref_csv(refs):
@@ -70,4 +69,4 @@ def create_ref_csv(refs):
     )
 
 
-#ref_csv = create_ref_csv(refs)
+# ref_csv = create_ref_csv(refs)

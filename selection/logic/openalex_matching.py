@@ -1,13 +1,16 @@
 from rapidfuzz import process, fuzz
 import pandas as pd
 
-'''
+"""
     Warning: choices and extracted_references subjected to change
-'''
+"""
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
 extracted_references = ["Cowboys", "Falcons"]
 
-def rapidfuzz_match(extracted_references: list, openalex_works: list, scorer = fuzz.WRatio):
+
+def rapidfuzz_match(
+    extracted_references: list, openalex_works: list, scorer=fuzz.WRatio
+):
     top_match = []
     second_match = []
     third_match = []
@@ -36,16 +39,46 @@ def rapidfuzz_match(extracted_references: list, openalex_works: list, scorer = f
         second_scores.append(second_score)
         second_indexes.append(second_index)
         third_match.append(third)
-    matched_df = pd.DataFrame(list(zip(extracted_references, top_match,top_names, top_scores, top_indexes, second_match, second_names, second_scores, second_indexes, third_match)), columns=['extracted_reference', 'top_match', 'top_names', 'top_scores', 'top_indexes', 'second_match', 'second_names', 'second_scores', 'second_indexes', 'third_match'])
+    matched_df = pd.DataFrame(
+        list(
+            zip(
+                extracted_references,
+                top_match,
+                top_names,
+                top_scores,
+                top_indexes,
+                second_match,
+                second_names,
+                second_scores,
+                second_indexes,
+                third_match,
+            )
+        ),
+        columns=[
+            "extracted_reference",
+            "top_match",
+            "top_names",
+            "top_scores",
+            "top_indexes",
+            "second_match",
+            "second_names",
+            "second_scores",
+            "second_indexes",
+            "third_match",
+        ],
+    )
     return matched_df
 
-'''
+
+"""
     Optional: Can fold get_unique_ids into rapidfuzz_match if refactoring is neccessary
     Both return the same Dataframe
-'''
+"""
+
+
 def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
     openalex_ids = []
-    for top_match in matched_df['top_match']:
+    for top_match in matched_df["top_match"]:
         index = top_match[2]
         openalex_id = openalex_works[openalex_id_col_name][index]
         openalex_ids.append(openalex_id)
@@ -53,5 +86,7 @@ def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
     return matched_df
 
 
-test = rapidfuzz_match(extracted_references=extracted_references, openalex_works=choices)
+test = rapidfuzz_match(
+    extracted_references=extracted_references, openalex_works=choices
+)
 test.head()
