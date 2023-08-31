@@ -8,6 +8,7 @@ pandas
 matplotlib
 seaborn
 scikit-learn
+spacy
 
 pyalex # For working with the OpenAlex.org API.
 python-slugify[unidecode]  # For simplifying strings to ease the matching process.
