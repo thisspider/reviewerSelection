@@ -22,6 +22,5 @@ res = requests.post(url=url, files=files)
 
 
 ###Output has to be changed
-print(res)
 if res:
     st.write(res.json())

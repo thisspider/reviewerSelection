@@ -30,13 +30,11 @@ def select(uploaded_pdf: UploadFile):
 @app.post("/upload_select")
 def create_upload_file(file: UploadFile):
     pdf = file.file.read()
-    # with open('test.pdf', 'w') as file:
-    #     file.write(pdf)
 
     temp_pdf = NamedTemporaryFile(suffix='.pdf')
     #this will create a file with path:
-    #'curr_pdf\<filename>.pdf'
-    #Get filename with temp_pdf.name
+    #'<filename>.pdf'
+    #Get path with temp_pdf.name
     temp_pdf.write(pdf)
 
     return {"filename": temp_pdf.name}

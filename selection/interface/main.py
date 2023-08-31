@@ -3,7 +3,6 @@ from selection.logic.create_candidate_list import extract_refs, create_ref_csv
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import rapidfuzz_match
 import pandas as pd
-import csv
 
 
 #1 Link pdf to openalex
