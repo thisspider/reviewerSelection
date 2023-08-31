@@ -59,6 +59,7 @@ def candidate_df(id_list: list):
 
     return candidate_df
 
+
 def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
     '''
     Input: pdf class object and DataFrame with all the candidates
