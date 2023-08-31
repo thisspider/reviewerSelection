@@ -84,7 +84,7 @@ def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
 # print(matched_pdf)
 
 #Test 2
-df = pd.read_csv('/home/nklin/code/thisspider/reviewerSelection/canttype.csv')
-df_as_list = list(df['0'])
-curr_list = candidate_list(df_as_list)
-print(curr_list)
+# df = pd.read_csv('/home/nklin/code/thisspider/reviewerSelection/canttype.csv')
+# df_as_list = list(df['0'])
+# curr_list = candidate_df(df_as_list)
+# print(curr_list)
