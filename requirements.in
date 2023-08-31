@@ -22,3 +22,5 @@ black # Autoformatting according to PEP8.
 ruff  # Very fast Rust linter.
 pdbpp  # A drop-in replacement for pdb.
 pip-tools
+uvicorn
+fastapi
