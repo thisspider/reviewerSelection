@@ -71,7 +71,6 @@ click==8.1.7
     # via
     #   black
     #   pip-tools
-    #   typer
 comm==0.1.4
     # via ipykernel
 confection==0.1.1
@@ -521,9 +520,10 @@ typing-extensions==4.7.1
     # via
     #   astroid
     #   async-lru
+    #   fastapi
     #   pydantic
     #   pydantic-core
-    #   typer
+    #   uvicorn
 tzdata==2023.3
     # via pandas
 unidecode==1.3.6
