@@ -1,11 +1,7 @@
 from pyalex import Works
 import pandas as pd
 
-<<<<<<< HEAD
 #oa_id_list = ["W2741809807", "W1560783210", "W2029057325", "W2160597895"]
-=======
-oa_id_list = ["W2741809807", "W1560783210", "W2029057325", "W2160597895"]
->>>>>>> 0cc7eb6 (Similarity comparison)
 
 def extract_refs(oa_id_list):
     """
