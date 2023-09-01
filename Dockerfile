@@ -1,10 +1,14 @@
-FROM python:3.10.6-buster
+FROM python:3.10.13-slim
+
+RUN apt-get update
+RUN apt-get -y install poppler-utils
 
 WORKDIR /prod
 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+COPY work_data work_data
 COPY selection selection
 COPY setup.py setup.py
 RUN pip install .

@@ -28,7 +28,7 @@ def get_references_from_pdf(path: str):
     def load_data(path):
         return pd.read_csv(path)
 
-    start_path = Path(__file__).parents[2] / "all_works_sociology.csv"
+    start_path = Path(__file__).parents[2] / "work_data" / "all_works_sociology.csv"
     all_works_df = load_data(str(start_path))
 
     # Fuzzymatch the works dataframe with the extracted references -> merge
