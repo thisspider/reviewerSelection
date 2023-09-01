@@ -52,21 +52,26 @@ def create_ref_csv(refs):
 
     ids = [w["id"].split("/")[-1] for w in refs]
     abstracts = [w["abstract"] for w in refs]
-    journal = [
-        w["primary_location"]["source"]["issn_l"]
-        for w in refs
-        if w["primary_location"]["source"]
-    ]
+    year = [w["publication_year"] for w in refs]
+
+    journal = []
+    for w in refs:
+        if w["primary_location"]:
+            if w["primary_location"]["source"]:
+                if w["primary_location"]["source"]["issn_l"]:
+                    journal.append(w["primary_location"]["source"]["issn_l"])
+
     authorships = [w["authorships"] for w in refs]
     authors = []
-    for papers in authorships:
-        current_paper = [author["author"]["display_name"] for author in papers]
-        authors.append(current_paper)
+    for paper in authorships:
+        authors_per_paper = []
+        for w in paper:
+            if w["author"]:
+                if w["author"]["display_name"]:
+                    authors_per_paper.append(w["author"]["display_name"])
+        authors.append(authors_per_paper)
 
     return pd.DataFrame(
-        list(zip(ids, journal, authors, abstracts)),
-        columns=["oa_id", "journal_issnl", "authors", "abstracts"],
+        list(zip(ids, year, journal, authors, abstracts)),
+        columns=["oa_id", "year", "journal_issnl", "authors", "abstracts"],
     )
-
-
-# ref_csv = create_ref_csv(refs)
