@@ -47,6 +47,7 @@ From within Python:
 
 ```shell
 uvicorn selection.api.fast:app --host 0.0.0.0 --reload
+# In a different window:
 streamlit run selection/frontend/app.py
-# Open your browser at http://localhost:8000 and upload a PDF file.
+# Open your browser and upload a PDF file.
 ```
