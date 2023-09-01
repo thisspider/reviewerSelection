@@ -27,6 +27,7 @@ print(type(res))
 potential_reviewers_dict = json.loads(res.json())
 potential_reviewers_df = pd.DataFrame.from_dict(potential_reviewers_dict)
 
+
 potential_reviewers_df["top_match"] = potential_reviewers_df["top_match"].apply(
     lambda x: x[0]
 )
