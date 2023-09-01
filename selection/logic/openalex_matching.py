@@ -122,16 +122,16 @@ def text_similarity(text1, text2):
     return similarity
 
 
-def cosine_match(target_ref: str, open_alex_works: list, n_grams=(1, 1), use_idf=True):
+def cosine_match(target_ref: list, open_alex_works: list, n_grams=(1, 1), use_idf=True):
     similarities = []
+    open_alex_works["abstracts"] = open_alex_works["abstracts"].map(
+        lambda x: x if type(x) == str else "No abstract"
+    )
     vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
-    target_vector = vectorizer.transform(target_ref["abstracts"])
+    target_vector = vectorizer.transform([target_ref["abstracts"]])
 
     for i in range(len(open_alex_works)):
-        #     cosine_similarity(np.array(vectors[0], vectors[i]))
-
-        #     # Calculate the cosine similarity between the vectors
         similarity = [
             open_alex_works.iloc[i]["oa_id"],
             open_alex_works.iloc[i]["year"],
