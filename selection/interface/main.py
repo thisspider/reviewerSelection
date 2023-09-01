@@ -1,9 +1,11 @@
-from selection.logic.pdf import PDF
-from selection.logic.create_candidate_list import extract_refs, create_ref_csv
+from pathlib import Path
+
+import pandas as pd
+
+from selection.logic.create_candidate_list import create_ref_csv, extract_refs
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import rapidfuzz_match
-import pandas as pd
-from pathlib import Path
+from selection.logic.pdf import PDF
 
 # 1 Link pdf to openalex
 # Extraction and matching
@@ -11,6 +13,10 @@ from pathlib import Path
 # 2 Create candidate list
 
 # 3 Select reviewers from candidate list
+
+# Test using:
+# matched_pdf, pdf = pdf_matching('work_data/test.pdf')
+# print(matched_pdf)
 
 
 def get_references_from_pdf(path: str):
@@ -75,18 +81,3 @@ def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
     match_df = rapidfuzz_match(pdf_abstract, candidate_abstract_list)
 
     return match_df
-
-
-# # #Test 1
-# matched_pdf, pdf = pdf_matching('test.pdf')
-# #print(matched_pdf)
-
-# # #Test 2
-# df = pd.read_csv('/home/nklin/code/thisspider/reviewerSelection/canttype.csv')
-# df_as_list = list(df['0'])
-# curr_list = candidate_df(df_as_list)
-# # print(curr_list)
-
-# #Test 3
-# result = select_reviewers(pdf, curr_list)
-# print(result)
