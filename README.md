@@ -12,6 +12,8 @@ pip install -r requirements.txt
 pre-commit install
 ```
 
+Make sure that `pdftotext` is available on your system (it is required by refextract).
+
 ## Extract infos from PDF
 
 The class `pdf_extraction.PDF` will read the following from a given PDF file:
