@@ -1,9 +1,9 @@
-import pandas as pd
-
-from selection.logic.create_candidate_list import create_ref_csv, extract_refs
+from selection.logic.pdf import PDF
+from selection.logic.create_candidate_list import extract_refs, create_ref_csv
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import rapidfuzz_match
-from selection.logic.pdf import PDF
+import pandas as pd
+from pathlib import Path
 
 # 1 Link pdf to openalex
 # Extraction and matching
@@ -13,7 +13,7 @@ from selection.logic.pdf import PDF
 # 3 Select reviewers from candidate list
 
 
-def pdf_matching(path: str):
+def get_references_from_pdf(path: str):
     """
     Input: Path to pdf file.
     Output: List of ids for each reference that was extracted out of the pdf
@@ -28,18 +28,19 @@ def pdf_matching(path: str):
     def load_data(path):
         return pd.read_csv(path)
 
-    all_works_df = load_data("../../all_works_sociology.csv")
+    start_path = Path(__file__).parents[2] / "all_works_sociology.csv"
+    all_works_df = load_data(str(start_path))
 
     # Fuzzymatch the works dataframe with the extracted references -> merge
-    id_list = merge_references_oaworks(
+    openalex_ids = merge_references_oaworks(
         extracted_references=extracted_references,
         openalex_works=all_works_df,
     )
 
-    return id_list, pdf
+    return openalex_ids, pdf
 
 
-def candidate_df(id_list: list):
+def create_candidates_df(openalex_ids: list):
     """
     Input: Id list of the references.
     Output: Dataframe of works that are candidates for being reviewers.
@@ -48,7 +49,7 @@ def candidate_df(id_list: list):
 
     # Get a list of dictionaries
     # Each dictionary represents on work
-    extracted_works = extract_refs(id_list)
+    extracted_works = extract_refs(openalex_ids)
 
     # Turn list of dictionaries into DataFrame
     # columns=["oa_id", "journal_issnl", "authors", "abstracts"]
@@ -76,12 +77,16 @@ def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
     return match_df
 
 
-# Test 1
-# matched_pdf = pdf_matching('/home/nklin/code/thisspider/reviewerSelection-data/EXAMPLE_MANUSCRIPT/AJS_2_Sugie2023.pdf')
-# print(matched_pdf)
+# # #Test 1
+# matched_pdf, pdf = pdf_matching('test.pdf')
+# #print(matched_pdf)
 
-# Test 2
-df = pd.read_csv("/home/nklin/code/thisspider/reviewerSelection/canttype.csv")
-df_as_list = list(df["0"])
-curr_list = candidate_list(df_as_list)
-print(curr_list)
+# # #Test 2
+# df = pd.read_csv('/home/nklin/code/thisspider/reviewerSelection/canttype.csv')
+# df_as_list = list(df['0'])
+# curr_list = candidate_df(df_as_list)
+# # print(curr_list)
+
+# #Test 3
+# result = select_reviewers(pdf, curr_list)
+# print(result)

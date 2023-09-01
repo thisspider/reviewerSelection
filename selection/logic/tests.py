@@ -1,17 +1,14 @@
-import json
+import os
 import subprocess
 from pathlib import Path
 
 import pytest
+from attr import dataclass
 
 from pdf_extraction import PDF
+from pdf_extraction.pdf import bbox
 
-EXAMPLE_MANUSCRIPT = (
-    Path(__file__).resolve().parents[0]
-    / "reviewerSelection-data"
-    / "EXAMPLE_MANUSCRIPT"
-)
-OPENALEX_JSON = EXAMPLE_MANUSCRIPT / "OPENALEX_JSON"
+EXAMPLE_MANUSCRIPT = Path(os.getenv("EXAMPLE_MANUSCRIPT_PATH"))
 
 
 def test_python_api():
@@ -30,8 +27,9 @@ def test_python_api():
 def test_cli_api():
     """Make sure that the extraction can be run from the command line."""
     pdf_file = EXAMPLE_MANUSCRIPT / "AJS_1_teeger2023.pdf"
+    script_file = (Path(__file__) / ".." / "pdf.py").resolve()
     res = subprocess.run(
-        ["./pdf_extraction/pdf.py", pdf_file, "--no-references"], stdout=subprocess.PIPE
+        [script_file, pdf_file, "--no-references"], stdout=subprocess.PIPE
     )
     assert (
         "Title: (Not) Feeling the Past: Boredom as a Racialized Emotion"
@@ -40,28 +38,86 @@ def test_cli_api():
 
 
 @pytest.mark.parametrize(
-    "pdf_path,json_path",
+    "pdf_path, expected_count",
     [
         (
             EXAMPLE_MANUSCRIPT / "AJS_1_teeger2023.pdf",
-            OPENALEX_JSON / "AJS_1_W4383896243.json",
+            (11 + 22 + 21 + 23 + 23 + 23 + 4),
         ),
         (
             EXAMPLE_MANUSCRIPT / "AJS_2_Sugie2023.pdf",
-            OPENALEX_JSON / "AJS_2_W4383874036.json",
+            (22 + 21 + 22 + 20 + 16),
         ),
         (
             EXAMPLE_MANUSCRIPT / "AJS_3_flores2023.pdf",
-            OPENALEX_JSON / "AJS_3_W4383896166.json",
+            (19 + 24 + 24 + 25 + 2),
         ),
     ],
 )
-def test_reference_count(pdf_path, json_path):
-    with json_path.open() as f:
-        data = json.load(f)
-        num_references_openalex = len(data["referenced_works"])
+def test_reference_count(pdf_path, expected_count):
+    assert len(PDF(pdf_path).references) == expected_count
 
-    assert len(PDF(pdf_path).references) == num_references_openalex
+
+@pytest.mark.parametrize(
+    "pdf_path,start, end",
+    [
+        (
+            EXAMPLE_MANUSCRIPT / "AJS_1_teeger2023.pdf",
+            "This article centers boredom",
+            "and history education.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "AJS_2_Sugie2023.pdf",
+            "Punitive policies of welfare",
+            "criminal legal system.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "AJS_3_flores2023.pdf",
+            "Ethnic boundary crossing",
+            "social meaning of indigeneity itself.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "ARXIV_1.pdf",
+            "Gender discrimination in the hiring process",
+            "team gender composition.",
+        ),
+        pytest.param(
+            EXAMPLE_MANUSCRIPT / "FRONTIERS_1.pdf",
+            "Harmful bacteria are microscopic",
+            "treat bacterial diseases.",
+            marks=pytest.mark.xfail(reason="Breaks pdfQuery due to weird char."),
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "MANUSCRIPT.pdf",
+            "Abstract: This study empirically investigated",
+            "males born between 1978-1994.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "SOCARXIV_1.pdf",
+            "This article contributes to anthropological",
+            "hoping versus expecting.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "SOCARXIV_2.pdf",
+            "Cognitive sociology has",
+            "heterogeneity in group detection.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "SOCARXIV_3.pdf",
+            "Postdoctoral researchers contribute",
+            "such as culture and language.",
+        ),
+        (
+            EXAMPLE_MANUSCRIPT / "SOCARXIV_4.pdf",
+            "The article focuses on the experiences",
+            "and anthropological research.",
+        ),
+    ],
+)
+def test_abstract(pdf_path: Path, start: str, end: str):
+    abstract = PDF(pdf_path, references=False).abstract
+    assert abstract.startswith(start)
+    assert abstract.endswith(end)
 
 
 @pytest.mark.parametrize(
@@ -155,3 +211,25 @@ def test_title(pdf_path: str, title: str):
 def test_authors(pdf_path: str, authors: list[str]):
     """Test that the title obtained via `get_title()` is the same as in the PDF."""
     assert PDF(pdf_path, references=False).authors == authors
+
+
+@pytest.mark.parametrize(
+    "pdf_path",
+    [
+        EXAMPLE_MANUSCRIPT / "SOCARXIV_2.pdf",
+    ],
+)
+def test_layout_groups(pdf_path: str):
+    PDF(pdf_path, references=False).get_layout_groups()
+
+
+def test_bbox():
+    @dataclass
+    class Element:
+        attrib: dict
+
+    elements = [
+        Element(attrib={"x0": 127, "y0": 646, "x1": 465, "y1": 663}),
+        Element(attrib={"x0": 195, "y0": 609, "x1": 397, "y1": 626}),
+    ]
+    assert bbox(elements) == {"x0": 127, "y0": 609, "x1": 465, "y1": 663}

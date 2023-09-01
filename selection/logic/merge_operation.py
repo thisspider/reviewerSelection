@@ -21,18 +21,16 @@ def get_openalex_from_path(oa_path):
 
 
 def merge_references_oaworks(
-    extracted_references: pd.DataFrame,
+    extracted_references: list,
     openalex_works: pd.DataFrame,
     scorer=fuzz.token_sort_ratio,
 ):
-    """
-    Take as an input two dataframes.
-    """
+    """Take as an input two dataframes."""
 
     start_time = time.time()
 
     openalex_works_list = list(openalex_works["concat_name_title"])
-    extracted_references_list = list(extracted_references.iloc[:, 0])
+    extracted_references_list = list(extracted_references)
     matched_df = rapidfuzz_match(
         extracted_references=extracted_references_list,
         openalex_works=openalex_works_list,
@@ -42,4 +40,4 @@ def merge_references_oaworks(
     end_time = time.time()
 
     print(f"Time taken: {end_time - start_time} seconds")
-    return matched_df_oa["id"]
+    return matched_df_oa["openalex_ids"]

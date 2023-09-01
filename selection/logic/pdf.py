@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """Extract info from a PDF file using PDFQuery and refextract."""
-import math
 import re
 import string
 import tempfile
+from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path
+from typing import Callable
 
 import click
 import pandas as pd
@@ -21,16 +23,48 @@ def clean(value: str):
 
 def bbox(elements: list) -> dict:
     """Return bounding box containing all elements."""
-    return (
-        pd.DataFrame([el.attrib for el in elements])[["x0", "x1", "y0", "y1"]]
-        .astype(float)
-        .agg({"x0": "min", "x1": "min", "y0": "max", "y1": "max"})
-        .to_dict()
+    return BBox(
+        **(
+            pd.DataFrame([el.attrib for el in elements])[["x0", "x1", "y0", "y1"]]
+            .astype(float)
+            .agg(
+                {
+                    "x0": "min",
+                    "x1": "max",
+                    "y0": "min",
+                    "y1": "max",
+                }
+            )
+            .to_dict()
+        )
     )
 
 
 def has_text():
     return bool(this.text)  # type: ignore # noqa
+
+
+def is_centered(page_width: float) -> Callable:
+    def func() -> bool:
+        offset = (
+            page_width
+            - float(this.attrib["x1"])  # type: ignore # noqa
+            - float(this.attrib["x0"])  # type: ignore # noqa
+        )
+        return abs(offset) < 10
+
+    return func
+
+
+@dataclass
+class BBox:
+    x0: float
+    y0: float
+    x1: float
+    y1: float
+
+    def __str__(self):
+        return f"{self.x0},{self.y0},{self.x1},{self.y1}"
 
 
 class PDF:
@@ -45,9 +79,23 @@ class PDF:
         self.references = []
         self.references_slugified = []
 
+        self.frontmatter = self.extract_frontmatter()
+        self.has_frontmatter = bool(
+            self.frontmatter["title"] and self.frontmatter["authors"]
+        )
+        page_index = 0
+        if self.has_frontmatter:
+            page_index = 1
+            self.title = self.frontmatter["title"]
+            self.authors = self.frontmatter["authors"]
+
+        self.pq = self.pdf.pq(f"LTPage[page_index='{page_index}']")
+
+        # Order of execution is important because we obtain later objects
+        # in relationship to the layout of prior ones.
         self.extract_title()
-        self.extract_authors()
         self.extract_abstract()
+        self.extract_authors()
         if references:
             self.extract_references()
 
@@ -61,14 +109,28 @@ class PDF:
             temp_dir += "/"
 
         self.pdf = pdfquery.PDFQuery(
-            str(pdf_path), parse_tree_cacher=FileCache(temp_dir)
+            str(pdf_path),
+            parse_tree_cacher=FileCache(temp_dir),
+            round_digits=1,
         )
 
-        # Only extract first page by default for faster processing.
-        pages = [0]
+        # Only extract first two pages by default for faster processing.
+        pages = [0, 1]
 
         self.pdf.load(*pages)
-        self.page_width = self.pdf.get_page(0).mediabox[2]
+        self.page_width, self.page_height = self.pdf.get_page(0).mediabox[2:]
+
+    def extract_frontmatter(self):
+        def next_column(match):
+            return match.parents("LTRect").next().children().text()
+
+        return self.pdf.extract(
+            [
+                ("with_parent", 'LTPage[page_index="0"]'),
+                ("title", 'LTTextLineHorizontal:contains("Title")', next_column),
+                ("authors", 'LTTextLineHorizontal:contains("Authors")', next_column),
+            ]
+        )
 
     def __str__(self):
         return f"PDF: {self.authors} {self.title}"
@@ -88,41 +150,124 @@ class PDF:
             for ref in self.references:
                 click.echo(f"* {ref[:70]}")
 
+    def get_text_from_bbox(self, bbox: BBox):
+        return clean(
+            "".join(
+                e.text for e in self.pq.find(f":in_bbox('{bbox}')").filter(has_text)
+            )
+        )
+
     def extract_title(self, max_length: int = 100) -> None:
-        self.extract_title_from_metadata()
-        self.extract_title_from_biggest_elements(max_length)
-        self.title = clean(
-            max([self.title_from_metadata, self.title_from_biggest_elements], key=len)
+        self.title_bbox = self.get_title_bbox_for_biggest_elements()
+
+        if not self.has_frontmatter:
+            self.title = self.get_text_from_bbox(
+                self.get_title_bbox_for_biggest_elements()
+            )
+
+            if len(self.title) > 100:
+                self.title = self.get_text_from_bbox(self.get_title_bbox_by_distance())
+
+    def get_title_bbox_for_biggest_elements(self):
+        elements = self.pq.find("LTTextLineHorizontal,LTTextBoxHorizontal").filter(
+            has_text
+        )
+        font_sizes = list({int(float(e.attrib["height"])) for e in elements})
+
+        if len(font_sizes) == 1:
+            return
+
+        def biggest_font():
+            height = int(float(this.get("height")))  # type: ignore # noqa
+            return height == font_sizes[-1]
+
+        title_elems = elements.filter(biggest_font)
+        return bbox(title_elems)
+
+    def get_title_bbox_by_distance(self) -> BBox:
+        upper_third = f"0,{self.page_height * 2/3},{self.page_width},{self.page_height}"
+        elements = (
+            self.pq(f":in_bbox('{upper_third}')")
+            .filter(has_text)
+            .filter(is_centered(self.page_width))
         )
 
-    def extract_title_from_metadata(self) -> str:
-        title = self.pdf.tree.attrib.get("Title")
-        if not title:
-            title = self.pdf.tree.attrib.get("title")
-        self.title_from_metadata = title or ""
-
-    def extract_title_from_biggest_elements(self, max_length: int):
-        text_lines = self.pdf.pq("LTTextLineHorizontal,LTTextBoxHorizontal")
-        elems_with_height = [
-            (math.floor(float(el.attrib["height"])), el.text or "", el)
-            for el in text_lines
-        ]
-
-        # Only consider elements up until 'Abstract' appears.
-        relevant_elems = []
-        for el in elems_with_height:
-            if re.search(r"abstract", el[1], re.IGNORECASE):
+        title_elements = []
+        for el_1, el_2 in pairwise(elements):
+            y0_el_1 = float(el_1.attrib["y0"])
+            y1_el_2 = float(el_2.attrib["y1"])
+            distance = round(y0_el_1 - y1_el_2, 1)
+            if distance < min(
+                [float(el_1.attrib["height"]), float(el_2.attrib["height"])]
+            ):
+                title_elements.append(el_1)
+                title_elements.append(el_2)
+            else:
                 break
-            relevant_elems.append(el)
 
-        max_height = max([el[0] or 0 for el in relevant_elems if el[1]])
+        return bbox(title_elements)
 
-        title_elems = [el for el in relevant_elems if el[0] == max_height]
+    def extract_abstract(self):
+        self.extract_abstract_by_cue_element()
+        if not self.abstract:
+            self.extract_abstract_by_line_spacing()
 
-        self.title_bbox = bbox([el[2] for el in title_elems])
-        self.title_from_biggest_elements = clean(
-            "".join(el[1] for el in title_elems)[:max_length]
+    def extract_abstract_by_cue_element(self):
+        # pp [(r[0], r[1].text[:15], r[2].text[:15]) for r in results]
+
+        try:
+            cue_elem = self.pq.find(":contains('Abstract')").filter(has_text)[0]
+        except IndexError:
+            return
+
+        y1_abstr = cue_elem.attrib["y1"]
+        query = f":in_bbox('0,0,{self.page_width},{y1_abstr}')"
+        elements = self.pq(query).filter(has_text)
+
+        results = []
+        for el_1, el_2 in zip(elements, elements[1:]):
+            y0_el_1 = float(el_1.attrib["y0"])
+            y1_el_2 = float(el_2.attrib["y1"])
+            distance = int(y0_el_1 - y1_el_2)
+            results.append((distance, el_1, el_2))
+
+        abstract_elements = []
+        for a, b in pairwise(results):
+            if a[0] == b[0]:
+                abstract_elements.append(a[1])
+            elif abstract_elements:
+                abstract_elements.append(a[1])
+                break
+
+        self.abstract_bbox = bbox(abstract_elements)
+        self.abstract = clean(
+            "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
         )
+
+    def extract_abstract_by_line_spacing(self):
+        """Assume text with equidistant line spacing after title is the abstract."""
+
+        y0_title = self.title_bbox.y0
+        query = f":in_bbox('0,0,{self.page_width},{y0_title}')"
+        elements = self.pdf.pq(query).filter(has_text)
+
+        results = []
+        for el_1, el_2 in zip(elements, elements[1:]):
+            y0_el_1 = float(el_1.attrib["y0"])
+            y1_el_2 = float(el_2.attrib["y1"])
+            distance = round(y0_el_1 - y1_el_2, 1)
+            results.append((distance, el_1, el_2))
+
+        abstract_elements = []
+        for a, b in pairwise(results):
+            if a[0] == b[0]:
+                abstract_elements.append(a[1])
+            elif abstract_elements:
+                abstract_elements.append(a[2])
+                break
+
+        self.abstract_bbox = bbox(abstract_elements)
+        self.abstract = "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
 
     def extract_authors(self) -> list[str]:
         """Get authors from a PDFs document head.
@@ -132,24 +277,31 @@ class PDF:
         between layout groups (i.e. title, authors and abstract/content).
         """
 
+        assert self.abstract_bbox
+
         def from_metadata():
             authors = [self.pdf.tree.attrib.get("Author", "")]
             if not authors:
                 authors = [self.pdf.tree.attrib.get("author", "")]
             return authors
 
-        authors_from_metadata = from_metadata()
-        author_elements = self.get_element_group(y=self.title_bbox["y0"], spacing=36)
+        x1, y1 = self.page_width, self.title_bbox.y0
+        x0, y0 = 0, self.abstract_bbox.y1
 
-        if author_elements:
-            self.authors_bbox = bbox(author_elements)
-            authors_from_content = [clean(el.text) for el in author_elements]
+        elements = self.pdf.pq(f":in_bbox('{x0},{y0},{x1},{y1}')").filter(has_text)
 
-        self.authors = max([authors_from_metadata, authors_from_content], key=len)
+        # We don't expect author names to contain digits or the word 'abstract'.
+        elements = [
+            e
+            for e in elements
+            if not re.search(r"\d|(abstract)", e.text, re.IGNORECASE)
+        ]
 
-    def extract_abstract(self):
-        abstract_elements = self.get_element_group(y=self.authors_bbox["y0"])
-        self.abstract = "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
+        if elements:
+            self.authors_bbox = bbox(elements)
+            self.authors = [clean(el.text) for el in elements]
+        else:
+            self.authors = from_metadata()
 
     def get_element_group(self, y: float, spacing: int = 26) -> list:
         """Return elements that are within a layout group.

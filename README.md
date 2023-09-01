@@ -42,3 +42,11 @@ From within Python:
 >>> pdf.abstract
 "This article centers boredom as a racialized emotion by analyzing how it can come ..."
 ```
+
+## Run uvicorn and streamlit locally
+
+```shell
+uvicorn selection.api.fast:app --host 0.0.0.0 --reload
+streamlit run selection/frontend/app.py
+# Open your browser at http://localhost:8000 and upload a PDF file.
+```
