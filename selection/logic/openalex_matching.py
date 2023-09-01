@@ -1,9 +1,7 @@
 import pandas as pd
 from rapidfuzz import fuzz, process
 
-"""
-    Warning: choices and extracted_references subjected to change
-"""
+# WARNING: `choices` and `extracted_references` subjected to change.
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
 extracted_references = ["Cowboys", "Falcons"]
 
@@ -22,7 +20,12 @@ def rapidfuzz_match(
     second_names = []
     choices = openalex_works
     for reference in extracted_references:
-        # possible scorers are fuzz.WRatio , fuzz.partial_ratio , fuzz.token_set_ratio , fuzz.partial_token_set_ratio , fuzz.token_sort_ratio
+        # possible scorers are:
+        # - fuzz.WRatio
+        # - fuzz.partial_ratio
+        # - fuzz.token_set_ratio
+        # - fuzz.partial_token_set_ratio
+        # - fuzz.token_sort_ratio
         top, second, third = process.extract(reference, choices, scorer=scorer, limit=3)
         top_score = top[1]
         top_index = top[2]
@@ -70,13 +73,11 @@ def rapidfuzz_match(
     return matched_df
 
 
-"""
-    Optional: Can fold get_unique_ids into rapidfuzz_match if refactoring is neccessary
-    Both return the same Dataframe
-"""
-
-
 def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
+    """
+    Optional: Can fold get_unique_ids into rapidfuzz_match if refactoring is
+    neccessary Both return the same Dataframe
+    """
     openalex_ids = []
     for top_match in matched_df["top_match"]:
         index = top_match[2]
