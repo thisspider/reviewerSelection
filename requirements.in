@@ -4,6 +4,7 @@ ipdb
 jupyterlab
 matplotlib
 numpy
+nltk
 pandas
 pdbpp
 pdfquery
