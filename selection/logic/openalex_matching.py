@@ -97,7 +97,6 @@ test = rapidfuzz_match(
 )
 test.head()
 
-
 def text_similarity(text1, text2):
     # Tokenize and lemmatize the texts
     tokens1 = word_tokenize(text1)
@@ -129,18 +128,33 @@ def cosine_match(target_ref: str, open_alex_works: list, n_grams=(1, 2), use_idf
     target_vector = vectorizer.transform(target_ref["abstracts"])
 
     for i in range(len(open_alex_works)):
+        #     cosine_similarity(np.array(vectors[0], vectors[i]))
+
+        #     # Calculate the cosine similarity between the vectors
         similarity = [
             open_alex_works.iloc[i]["oa_id"],
+            open_alex_works.iloc[i]["year"],
+            open_alex_works.iloc[i]["journal_issnl"],
+            open_alex_works.iloc[i]["authors"],
             open_alex_works.iloc[i]["abstracts"],
             cosine_similarity(target_vector, vectors[i]),
         ]
+
         similarities.append(similarity)
+    similarities = pd.DataFrame(similarities)
+    similarities.columns = [
+        "oa_id",
+        "year",
+        "journal_issnl",
+        "authors",
+        "abstracts",
+        "cos_sim",
+    ]
     return similarities
 
 
 def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
-    open_alex_works = full_df[["work_id", "abstract_content"]]
-    similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
+    similarities = cosine_match(target_ref, full_df, use_idf=use_idf)
     full_df.merge(similarities[[cosine_similarity]], how="inner", on="work_id")
 
     return full_df
