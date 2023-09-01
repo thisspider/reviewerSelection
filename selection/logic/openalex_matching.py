@@ -97,6 +97,7 @@ test = rapidfuzz_match(
 )
 test.head()
 
+
 def text_similarity(text1, text2):
     # Tokenize and lemmatize the texts
     tokens1 = word_tokenize(text1)
