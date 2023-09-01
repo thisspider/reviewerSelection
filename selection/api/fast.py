@@ -1,10 +1,12 @@
+from tempfile import NamedTemporaryFile
+
 from fastapi import FastAPI, UploadFile
+
 from selection.interface.main import (
-    get_references_from_pdf,
     create_candidates_df,
+    get_references_from_pdf,
     select_reviewers,
 )
-from tempfile import NamedTemporaryFile
 
 app = FastAPI()
 

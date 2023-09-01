@@ -1,5 +1,5 @@
-from rapidfuzz import process, fuzz
 import pandas as pd
+from rapidfuzz import fuzz, process
 
 """
     Warning: choices and extracted_references subjected to change

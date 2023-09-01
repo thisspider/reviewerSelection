@@ -1,7 +1,8 @@
-import streamlit as st
-import requests
-import pandas as pd
 import json
+
+import pandas as pd
+import requests
+import streamlit as st
 
 # PDF input
 uploaded_file = st.file_uploader("Choose your .pdf file", type="pdf")

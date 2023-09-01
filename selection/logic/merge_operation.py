@@ -1,7 +1,9 @@
-from selection.logic.openalex_matching import rapidfuzz_match, get_unique_ids
+import time
+
 import pandas as pd
 from rapidfuzz import fuzz
-import time
+
+from selection.logic.openalex_matching import get_unique_ids, rapidfuzz_match
 
 # references_path = './raw_data/AJS_1_teeger2023.pdf.txt'
 # oa_path = "./all_works_sociology.csv"
