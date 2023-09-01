@@ -1,5 +1,10 @@
 from rapidfuzz import process, fuzz
 import pandas as pd
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 """
     Warning: choices and extracted_references subjected to change
@@ -22,7 +27,8 @@ def rapidfuzz_match(
     second_names = []
     choices = openalex_works
     for reference in extracted_references:
-        # possible scorers are fuzz.WRatio , fuzz.partial_ratio , fuzz.token_set_ratio , fuzz.partial_token_set_ratio , fuzz.token_sort_ratio
+        # possible scorers are fuzz.WRatio , fuzz.partial_ratio , fuzz.token_set_ratio
+        # fuzz.partial_token_set_ratio , fuzz.token_sort_ratio
         top, second, third = process.extract(reference, choices, scorer=scorer, limit=3)
         top_score = top[1]
         top_index = top[2]
@@ -90,3 +96,66 @@ test = rapidfuzz_match(
     extracted_references=extracted_references, openalex_works=choices
 )
 test.head()
+
+
+def text_similarity(text1, text2):
+    # Tokenize and lemmatize the texts
+    tokens1 = word_tokenize(text1)
+    tokens2 = word_tokenize(text2)
+    lemmatizer = WordNetLemmatizer()
+    tokens1 = [lemmatizer.lemmatize(token) for token in tokens1]
+    tokens2 = [lemmatizer.lemmatize(token) for token in tokens2]
+
+    # Remove stopwords
+    stop_words = stopwords.words("english")
+    tokens1 = [token for token in tokens1 if token not in stop_words]
+    tokens2 = [token for token in tokens2 if token not in stop_words]
+
+    # Create the TF-IDF vectors
+    vectorizer = TfidfVectorizer()
+    vector1 = vectorizer.fit_transform(tokens1)
+    vector2 = vectorizer.transform(tokens2)
+
+    # Calculate the cosine similarity
+    similarity = cosine_similarity(vector1, vector2)
+
+    return similarity
+
+
+def cosine_match(target_ref: str, open_alex_works: list, n_grams=(1, 2), use_idf=False):
+    similarities = []
+    vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
+    vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
+    target_vector = vectorizer.transform(target_ref["abstracts"])
+
+    for i in range(len(open_alex_works)):
+        #     cosine_similarity(np.array(vectors[0], vectors[i]))
+
+        #     # Calculate the cosine similarity between the vectors
+        similarity = [
+            open_alex_works.iloc[i]["oa_id"],
+            open_alex_works.iloc[i]["year"],
+            open_alex_works.iloc[i]["journal_issnl"],
+            open_alex_works.iloc[i]["authors"],
+            open_alex_works.iloc[i]["abstracts"],
+            cosine_similarity(target_vector, vectors[i]),
+        ]
+
+        similarities.append(similarity)
+    similarities = pd.DataFrame(similarities)
+    similarities.columns = [
+        "oa_id",
+        "year",
+        "journal_issnl",
+        "authors",
+        "abstracts",
+        "cos_sim",
+    ]
+    return similarities
+
+
+def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
+    similarities = cosine_match(target_ref, full_df, use_idf=use_idf)
+    full_df.merge(similarities[[cosine_similarity]], how="inner", on="work_id")
+
+    return full_df
