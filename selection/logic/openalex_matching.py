@@ -1,22 +1,9 @@
 from rapidfuzz import process, fuzz
 import pandas as pd
-import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-=======
 from sklearn.feature_extraction.text import TfidfVectorizer
->>>>>>> ddfd47b (Similarity comparison)
-=======
-from sklearn.feature_extraction.text import TfidfVectorizer
->>>>>>> 0cc7eb6 (Similarity comparison)
-=======
-from sklearn.feature_extraction.text import TfidfVectorizer
->>>>>>> b7b2743 (merge conflicts)
 from sklearn.metrics.pairwise import cosine_similarity
 
 """
@@ -40,7 +27,8 @@ def rapidfuzz_match(
     second_names = []
     choices = openalex_works
     for reference in extracted_references:
-        # possible scorers are fuzz.WRatio , fuzz.partial_ratio , fuzz.token_set_ratio , fuzz.partial_token_set_ratio , fuzz.token_sort_ratio
+        # possible scorers are fuzz.WRatio , fuzz.partial_ratio , fuzz.token_set_ratio
+        # fuzz.partial_token_set_ratio , fuzz.token_sort_ratio
         top, second, third = process.extract(reference, choices, scorer=scorer, limit=3)
         top_score = top[1]
         top_index = top[2]
@@ -109,52 +97,7 @@ test = rapidfuzz_match(
 )
 test.head()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b7b2743 (merge conflicts)
-def cosine_match(target_ref:str, open_alex_works: list, n_grams=(1,2), use_idf=False):
-=======
-def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
-    similarities = []
-    target_vectorizor = TfidfVectorizer(use_idf=use_idf)
-    target_vector = target_vectorizor.fit_transform(target_ref)
-    vectorizer = TfidfVectorizer(use_idf=use_idf)
-    vectors = vectorizer.fit_transform(open_alex_works)
-    for i in range(len(open_alex_works)):
-    #     cosine_similarity(np.array(vectors[0], vectors[i]))
->>>>>>> ad328b5 (get_cosine_similarity)
 
-    similarities = []
-    vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
-    vectors = vectorizer.fit_transform(open_alex_works['abstracts'])
-    target_vector = vectorizer.transform(target_ref['abstracts'])
-
-    for i in range(len(open_alex_works)):
-#     cosine_similarity(np.array(vectors[0], vectors[i]))
-
-#     # Calculate the cosine similarity between the vectors
-        similarity = [open_alex_works.iloc[i]['oa_id'], open_alex_works.iloc[i]['abstracts'],cosine_similarity(target_vector, vectors[i])]
-#     # cosine_similarity(vectors[0], vectors[i]) for i in range ...
-    # cosine_similarity( np.array( vectors[index for query] , vectors[index for comparison] ) )
-
-        similarities.append(similarity)
-    return similarities
-
-def get_cosine_similarity(full_df: list, target_ref: str, n_grams=None, use_idf=True):
-    open_alex_works = full_df[['oa_id', 'abstracts']]
-    similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
-    full_df.merge(similarities[[cosine_similarity]], how='inner', on='oa_id')
-<<<<<<< HEAD
-    return full_df
-    # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 0cc7eb6 (Similarity comparison)
 def text_similarity(text1, text2):
     # Tokenize and lemmatize the texts
     tokens1 = word_tokenize(text1)
@@ -164,7 +107,7 @@ def text_similarity(text1, text2):
     tokens2 = [lemmatizer.lemmatize(token) for token in tokens2]
 
     # Remove stopwords
-    stop_words = stopwords.words('english')
+    stop_words = stopwords.words("english")
     tokens1 = [token for token in tokens1 if token not in stop_words]
     tokens2 = [token for token in tokens2 if token not in stop_words]
 
@@ -178,48 +121,26 @@ def text_similarity(text1, text2):
 
     return similarity
 
-def cosine_match(target_ref:str, open_alex_works: list):
-<<<<<<< HEAD
-=======
-def cosine_match(target_ref:str, open_alex_works: list, use_idf=True):
->>>>>>> 9362bc4 (Created cosine similarity function)
+
+def cosine_match(target_ref: str, open_alex_works: list, n_grams=(1, 2), use_idf=False):
     similarities = []
-    target_vectorizor = TfidfVectorizer(use_idf=use_idf)
-    target_vector = target_vectorizor.fit_transform(target_ref)
-    vectorizer = TfidfVectorizer(use_idf=use_idf)
-    vectors = vectorizer.fit_transform(open_alex_works)
+    vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
+    vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
+    target_vector = vectorizer.transform(target_ref["abstracts"])
+
     for i in range(len(open_alex_works)):
-    #     cosine_similarity(np.array(vectors[0], vectors[i]))
-
-    #     # Calculate the cosine similarity between the vectors
-        similarity = [ open_alex_works.iloc[i]['work_id'],cosine_similarity(target_vector, vectors[i]), open_alex_works.iloc[i]['abstract_content']]
-    #     # cosine_similarity(vectors[0], vectors[i]) for i in range ...
-    # cosine_similarity( np.array( vectors[index for query] , vectors[index for comparison] ) )
-
-    similarities.append(similarity)
+        similarity = [
+            open_alex_works.iloc[i]["oa_id"],
+            open_alex_works.iloc[i]["abstracts"],
+            cosine_similarity(target_vector, vectors[i]),
+        ]
+        similarities.append(similarity)
     return similarities
-<<<<<<< HEAD
->>>>>>> ddfd47b (Similarity comparison)
-=======
+
 
 def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
-    open_alex_works = full_df[['work_id', 'abstract_content']]
+    open_alex_works = full_df[["work_id", "abstract_content"]]
     similarities = cosine_match(target_ref, open_alex_works, use_idf=use_idf)
-    full_df.merge(similarities[[cosine_similarity]], how='inner', on='work_id')
-=======
->>>>>>> b7b2743 (merge conflicts)
+    full_df.merge(similarities[[cosine_similarity]], how="inner", on="work_id")
+
     return full_df
-    # sim_values = [i[0][0] for i in similarities['cosine_similarity']]
->>>>>>> 9362bc4 (Created cosine similarity function)
-=======
-    similarities = []
-    for work in open_alex_works:
-        similarity = text_similarity(target_ref, work)
-        work_similarity = {
-                work: similarity
-            }
-        similarities.append(work_similarity)
-    return similarities
->>>>>>> 0cc7eb6 (Similarity comparison)
-=======
->>>>>>> ad328b5 (get_cosine_similarity)
