@@ -122,7 +122,7 @@ def text_similarity(text1, text2):
     return similarity
 
 
-def cosine_match(target_ref: str, open_alex_works: list, n_grams=(1, 2), use_idf=False):
+def cosine_match(target_ref: str, open_alex_works: list, n_grams=(1, 1), use_idf=True):
     similarities = []
     vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
