@@ -38,5 +38,5 @@ def merge_references_oaworks(
     )
     matched_df_oa = get_unique_ids(matched_df, openalex_works, "id")
 
-    print(f"Done ({int(time.time() - start_time)}s)")
+    print(f"Done. ({int(time.time() - start_time)}s)")
     return matched_df_oa["openalex_ids"]

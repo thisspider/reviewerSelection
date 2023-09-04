@@ -1,5 +1,5 @@
-from enum import Enum
 from tempfile import NamedTemporaryFile
+from time import time
 
 import pandas as pd
 from fastapi import FastAPI, File, UploadFile
@@ -11,19 +11,11 @@ from selection.interface.main import (
     get_references_from_pdf,
     select_reviewers,
 )
+from selection.logic import ModelName
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
 
 app = FastAPI()
-
-
-class ModelName(str, Enum):
-    """Models for matching references."""
-
-    bertopic = "BERTopic"
-    cosine = "Cosine-Similarity"
-    fuzzymatch = "FuzzyMatching"
-    spacy = "Spacy"
 
 
 @app.get("/", include_in_schema=False)
@@ -50,12 +42,16 @@ def pdf(pdf_file: UploadFile, extract_references: bool = True):
     care for them and just want the base information,
     pass `extract_references=False` for a quicker response.
     """
-    assert pdf_file.content_type == "application/pdf"
-
     temp_file = NamedTemporaryFile(suffix=".pdf")
     temp_file.write(pdf_file.file.read())
 
+    start = time()
+    print("Reading PDF...")
+
     pdf = PDF(temp_file.name, references=extract_references)
+
+    duration = time() - start
+    print(f"Done. ({int(duration)}s)")
 
     return {
         "title": pdf.title,
@@ -114,15 +110,7 @@ def reviewers(abstract: str, candidate_works: list[str], model: ModelName = "cos
     return a list of top-matching OpenAlex Work IDs for candidate works,
     using the specified model.
     """
-    if model == ModelName.bertopic:
-        ...
-    elif model == ModelName.cosine:
-        ...
-    elif model == ModelName.spacy:
-        ...
-    elif model == ModelName.fuzzymatch:
-        ...
-    return model
+    return select_reviewers(abstract, candidate_works, model)
 
 
 @app.post("/select")
