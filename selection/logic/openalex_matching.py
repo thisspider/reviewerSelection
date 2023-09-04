@@ -129,7 +129,10 @@ def cosine_match(
     open_alex_works["abstracts"] = open_alex_works["abstracts"].map(
         lambda x: x if type(x) == str else "No abstract"
     )
-    vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
+    vectorizer_idf = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
+    vectors_idf = vectorizer_idf.fit_transform(open_alex_works["abstracts"])
+    target_vector_idf = vectorizer_idf.transform([pdf_instance.abstract])
+    vectorizer = TfidfVectorizer(use_idf=False, ngram_range=n_grams)
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
     target_vector = vectorizer.transform([pdf_instance.abstract])
 
@@ -141,6 +144,7 @@ def cosine_match(
             open_alex_works.iloc[i]["authors"],
             open_alex_works.iloc[i]["abstracts"],
             cosine_similarity(target_vector, vectors[i]),
+            cosine_similarity(target_vector_idf, vectors_idf[i]),
         ]
 
         similarities.append(similarity)
@@ -151,6 +155,7 @@ def cosine_match(
         "journal_issnl",
         "authors",
         "abstracts",
+        "cos_sim_idf",
         "cos_sim",
     ]
     similarities = similarities.sort_values(by="cos_sim", ascending=False)
