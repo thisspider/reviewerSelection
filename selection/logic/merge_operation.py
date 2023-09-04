@@ -32,9 +32,8 @@ def merge_references_oaworks(
     start_time = time.time()
 
     openalex_works_list = list(openalex_works["concat_name_title"])
-    extracted_references_list = list(extracted_references)
     matched_df = rapidfuzz_match(
-        extracted_references=extracted_references_list,
+        extracted_references=extracted_references,
         openalex_works=openalex_works_list,
         scorer=scorer,
     )

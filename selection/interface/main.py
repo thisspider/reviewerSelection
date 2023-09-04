@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -19,29 +20,27 @@ print(f"Model set to '{MODEL}'.")
 
 # 3 Select reviewers from candidate list
 
+DATA = Path(__file__).parents[2] / "work_data"
 
-def get_references_from_pdf(path: str):
+
+def get_references_from_pdf(
+    manuscript_filepath: Path,
+    articles_filepath: Path = DATA / "all_works_sociology.csv",
+) -> tuple[list[str], PDF]:
     """
-    Input: Path to pdf file.
-    Output: List of ids for each reference that was extracted out of the pdf
-            and the pdf.
-    -> ids (list), pdf (class object)
+    Fuzzymatch the references extracted from the manuscript PDF
+    with the articles from the articles CSV.
+
+    Returns list of matched OpenAlex Work IDs.
     """
-    # Extract the references out of the pdf
-    pdf = PDF(path)
-    extracted_references = pdf.references
+    start_time = time.time()
+    print("Reading PDF... ")
+    pdf = PDF(manuscript_filepath)
+    print(f"Done ({int(time.time() - start_time)}s)")
 
-    # Load the dataframe with all of the relevant works
-    def load_data(path):
-        return pd.read_csv(path)
-
-    start_path = Path(__file__).parents[2] / "work_data" / "all_works_sociology.csv"
-    all_works_df = load_data(str(start_path))
-
-    # Fuzzymatch the works dataframe with the extracted references -> merge
     openalex_ids = merge_references_oaworks(
-        extracted_references=extracted_references,
-        openalex_works=all_works_df,
+        extracted_references=pdf.references,
+        openalex_works=pd.read_csv(articles_filepath),
     )
 
     return openalex_ids, pdf
