@@ -1,18 +1,19 @@
 import json
 import os
+
 import pandas as pd
 import requests
 import streamlit as st
 
 MODEL = os.getenv("MODEL")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
 def process_pdf(pdf_file):
-    res = requests.get(
-        url="http://0.0.0.0:8000/select",
+    res = requests.post(
+        url=BACKEND_URL + "/select",
         files={"uploaded_pdf": pdf_file.getvalue()},
     )
-
     st.write()
     potential_reviewers_dict = json.loads(res.json())
     potential_reviewers_df = pd.DataFrame.from_dict(potential_reviewers_dict)
