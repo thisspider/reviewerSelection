@@ -1,17 +1,13 @@
-import os
 import time
 from pathlib import Path
 
 import pandas as pd
 
+from selection.logic import ModelName
 from selection.logic.create_candidate_list import create_ref_csv, extract_refs
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import cosine_match, rapidfuzz_match
 from selection.logic.pdf import PDF
-
-MODEL = os.getenv("MODEL", "cosine")
-
-print(f"Model set to '{MODEL}'.")
 
 # 1 Link pdf to openalex
 # Extraction and matching
@@ -22,10 +18,11 @@ print(f"Model set to '{MODEL}'.")
 
 DATA = Path(__file__).parents[2] / "work_data"
 
+OA_WORKS_FILE = DATA / "all_works_sociology.csv"
+
 
 def get_references_from_pdf(
-    manuscript_filepath: Path,
-    articles_filepath: Path = DATA / "all_works_sociology.csv",
+    manuscript_filepath: Path, articles_filepath: Path = OA_WORKS_FILE
 ) -> tuple[list[str], PDF]:
     """
     Fuzzymatch the references extracted from the manuscript PDF
@@ -64,7 +61,9 @@ def create_candidates_df(openalex_ids: list):
     return candidate_df
 
 
-def select_reviewers(abstract: str, candidate_df: pd.DataFrame) -> pd.DataFrame | None:
+def select_reviewers(
+    abstract: str, candidate_df: pd.DataFrame, model: ModelName
+) -> pd.DataFrame | None:
     """
     Return DataFrame with the top two matched abstracts.
 
@@ -72,15 +71,15 @@ def select_reviewers(abstract: str, candidate_df: pd.DataFrame) -> pd.DataFrame 
     all candidate works.
     """
 
-    if MODEL == "fuzzymatch":
+    if model == ModelName.fuzzymatch:
         # Turn candidate DataFrame into list of candidate abstracts
         candidate_abstract_list = candidate_df["abstracts"]
 
         # Match pdf abstract with candidate abstracts
         return rapidfuzz_match(abstract, candidate_abstract_list)
 
-    elif MODEL == "cosine":
+    elif model == ModelName.cosine:
         # Match pdf abstract with candidate abstracts
         return cosine_match(abstract, candidate_df)
 
-    print(f"{MODEL} has not been implemented yet.")
+    print(f"{model} has not been implemented yet.")
