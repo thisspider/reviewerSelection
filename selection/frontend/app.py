@@ -1,15 +1,17 @@
 import json
 import os
+
 import pandas as pd
 import requests
 import streamlit as st
 
 MODEL = os.getenv("MODEL")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
 def process_pdf(pdf_file):
     res = requests.post(
-        url="https://reviewerselection-xybezttb3a-ew.a.run.app/select",
+        url=BACKEND_URL + "/select",
         files={"uploaded_pdf": pdf_file.getvalue()},
     )
     st.write()
