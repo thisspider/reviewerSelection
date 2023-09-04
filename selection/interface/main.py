@@ -71,6 +71,8 @@ def select_reviewers(
     all candidate works.
     """
 
+    print(f"Calculating candidates using {model}...")
+
     if model == ModelName.fuzzymatch:
         # Turn candidate DataFrame into list of candidate abstracts
         candidate_abstract_list = candidate_df["abstracts"]

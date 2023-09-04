@@ -27,8 +27,7 @@ def merge_references_oaworks(
     openalex_works: pd.DataFrame,
     scorer=fuzz.token_sort_ratio,
 ):
-    """Take as an input two dataframes."""
-
+    print("Fuzzy-matching references from PDF with known articles...")
     start_time = time.time()
 
     openalex_works_list = list(openalex_works["concat_name_title"])
@@ -38,7 +37,6 @@ def merge_references_oaworks(
         scorer=scorer,
     )
     matched_df_oa = get_unique_ids(matched_df, openalex_works, "id")
-    end_time = time.time()
 
-    print(f"Time taken: {end_time - start_time} seconds")
+    print(f"Done. ({int(time.time() - start_time)}s)")
     return matched_df_oa["openalex_ids"]
