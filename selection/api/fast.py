@@ -11,12 +11,11 @@ from selection.interface.main import (
 app = FastAPI()
 
 
-@app.get("/select")
+@app.post("/select")
 def select(uploaded_pdf: UploadFile):
     """
     Give x recommendations for reviewers for the article in the pdf.
     """
-
     # Save uploaded_pdf
     pdf = uploaded_pdf.file.read()
 

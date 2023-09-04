@@ -8,11 +8,10 @@ MODEL = os.getenv("MODEL")
 
 
 def process_pdf(pdf_file):
-    res = requests.get(
-        url="http://0.0.0.0:8000/select",
+    res = requests.post(
+        url="https://reviewerselection-xybezttb3a-ew.a.run.app/select",
         files={"uploaded_pdf": pdf_file.getvalue()},
     )
-
     st.write()
     potential_reviewers_dict = json.loads(res.json())
     potential_reviewers_df = pd.DataFrame.from_dict(potential_reviewers_dict)
