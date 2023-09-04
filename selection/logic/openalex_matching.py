@@ -1,9 +1,9 @@
+from datetime import datetime
+
 import pandas as pd
 from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from datetime import datetime
-
 
 # WARNING: `choices` and `extracted_references` subjected to change.
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]

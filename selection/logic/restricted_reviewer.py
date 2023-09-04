@@ -1,7 +1,8 @@
+from ast import literal_eval
+
 import pandas as pd
 import requests
 from rapidfuzz import process
-from ast import literal_eval
 
 source_id = "S4210172581"
 api_uri = (
