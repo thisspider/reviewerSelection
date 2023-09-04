@@ -1,7 +1,6 @@
+from datetime import datetime
+
 import pandas as pd
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -98,30 +97,6 @@ test = rapidfuzz_match(
 test.head()
 
 
-def text_similarity(text1, text2):
-    # Tokenize and lemmatize the texts
-    tokens1 = word_tokenize(text1)
-    tokens2 = word_tokenize(text2)
-    lemmatizer = WordNetLemmatizer()
-    tokens1 = [lemmatizer.lemmatize(token) for token in tokens1]
-    tokens2 = [lemmatizer.lemmatize(token) for token in tokens2]
-
-    # Remove stopwords
-    stop_words = stopwords.words("english")
-    tokens1 = [token for token in tokens1 if token not in stop_words]
-    tokens2 = [token for token in tokens2 if token not in stop_words]
-
-    # Create the TF-IDF vectors
-    vectorizer = TfidfVectorizer()
-    vector1 = vectorizer.fit_transform(tokens1)
-    vector2 = vectorizer.transform(tokens2)
-
-    # Calculate the cosine similarity
-    similarity = cosine_similarity(vector1, vector2)
-
-    return similarity
-
-
 def cosine_match(
     pdf_instance: object, open_alex_works: pd.DataFrame, n_grams=(1, 1), use_idf=True
 ):
@@ -163,8 +138,21 @@ def cosine_match(
     return similarities
 
 
-def get_cosine_similarity(full_df: list, target_ref: str, use_idf=True):
-    similarities = cosine_match(target_ref, full_df, use_idf=use_idf)
-    full_df.merge(similarities[[cosine_similarity]], how="inner", on="work_id")
+def get_n_years(oa_works: pd.DataFrame, n_years=10):
+    """
+    oa_works should be the resulting DataFrame outputted by cosine_match
+    """
+    result = oa_works[oa_works["year"] >= (datetime.now().year - n_years)]
+    return result
 
-    return full_df
+
+def get_journals(oa_works: pd.DataFrame, journal_issnl: list[str]):
+    """
+    oa_works should be the resulting DataFrame outputted by cosine_match
+    """
+    results = [
+        oa_work
+        for i, oa_work in oa_works.iterrows()
+        if str(oa_work["journal_issnl"]) in journal_issnl
+    ]
+    return pd.DataFrame(results)

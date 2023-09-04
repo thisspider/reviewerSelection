@@ -1,6 +1,8 @@
+from ast import literal_eval
+
 import pandas as pd
 import requests
-from fuzzywuzzy import process
+from rapidfuzz import process
 
 source_id = "S4210172581"
 api_uri = (
@@ -17,12 +19,16 @@ def retrieve_restricted_names(
     """
     Steps to extract and consolidate names:
         Input: string of url/path for csv
-            restricted_general = './consolidated restricted/RESTRICTED GENERAL-Table 1.csv'
-            restricted_consulting = './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
-            unavailable = './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
+            restricted_general =
+                './consolidated restricted/RESTRICTED GENERAL-Table 1.csv'
+            restricted_consulting =
+                './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
+            unavailable =
+                './consolidated restricted/RESTRICTED CONSULTING-Table 1.csv'
         Output:
             arr[str]
-            ['Ariela Schachter', 'Regina Baker', 'Peter Catron', 'Leisy Abrego','Pete Aceves'...]
+            ['Ariela Schachter', 'Regina Baker', 'Peter Catron',
+            'Leisy Abrego','Pete Aceves'...]
     """
 
     restricted_general = pd.read_csv(restricted_general)
@@ -80,8 +86,8 @@ def get_authors(restrictions=False):
 
 
 def extract_matches(
-    author_names: list[str], restrict_authors: list[str], extract_one=False
-) -> list[dict]:
+    full_df: pd.DataFrame, restrict_authors: list[str], extract_one=False
+) -> pd.DataFrame:
     """
     Use fuzzywuzzy to iterate through list of author names and check against
     list of restricted names.
@@ -103,12 +109,13 @@ def extract_matches(
         ...
     ]
     """
-    matches = []
-    for author in author_names:
-        res = ""
-        if extract_one:
-            res = {author: process.extractOne(author, restrict_authors)}
-        else:
-            res = {author: process.extract(author, restrict_authors)}
-        matches.append(res)
-    return matches
+    full_df["authors"] = full_df["authors"].apply(literal_eval)
+    res = []
+    for i, work in full_df.iterrows():
+        match = []
+
+        for author in work["authors"]:
+            match.append({author: process.extract(author, restrict_authors)})
+        res.append(match)
+    full_df["author_matches"] = res
+    return full_df
