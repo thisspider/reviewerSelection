@@ -8,8 +8,9 @@ from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import cosine_match, rapidfuzz_match
 from selection.logic.pdf import PDF
 
-MODEL = os.getenv("MODEL")
+MODEL = os.getenv("MODEL", "cosine")
 
+print(f"Model set to '{MODEL}'.")
 
 # 1 Link pdf to openalex
 # Extraction and matching
