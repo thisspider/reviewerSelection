@@ -138,17 +138,18 @@ def cosine_match(
     return similarities
 
 
-"""
-    oa_works should be the resulting DataFrame outputted by cosine_match
-"""
-
-
 def get_n_years(oa_works: pd.DataFrame, n_years=10):
+    """
+    oa_works should be the resulting DataFrame outputted by cosine_match
+    """
     result = oa_works[oa_works["year"] >= (datetime.now().year - n_years)]
     return result
 
 
 def get_journals(oa_works: pd.DataFrame, journal_issnl: list[str]):
+    """
+    oa_works should be the resulting DataFrame outputted by cosine_match
+    """
     results = [
         oa_work
         for i, oa_work in oa_works.iterrows()
