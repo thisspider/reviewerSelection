@@ -144,7 +144,7 @@ def cosine_match(
 
 
 def get_n_years(oa_works: pd.DataFrame, n_years=10):
-    result = oa_works[oa_works["years"] >= (datetime.now().year - n_years)]
+    result = oa_works[oa_works["year"] >= (datetime.now().year - n_years)]
     return result
 
 
