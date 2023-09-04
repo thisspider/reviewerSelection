@@ -64,38 +64,26 @@ def create_candidates_df(openalex_ids: list):
     return candidate_df
 
 
-def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
+def select_reviewers(abstract: str, candidate_df: pd.DataFrame) -> pd.DataFrame | None:
     """
-    Input: pdf class object and DataFrame with all the candidates
-    Output: DataFrame with the top two matched abstracts
+    Return DataFrame with the top two matched abstracts.
+
+    The manuscript's abstract is matched to works from the DataFrame containing
+    all candidate works.
     """
-
-    # Get abstract of pdf
-    pdf_abstract = pdf.abstract
-
-    # Turn candidate DataFrame into list of candidate abstracts
-    # candidate_abstract_list = candidate_df["abstracts"]
 
     if MODEL == "fuzzymatch":
         # Turn candidate DataFrame into list of candidate abstracts
         candidate_abstract_list = candidate_df["abstracts"]
+
         # Match pdf abstract with candidate abstracts
-        match_df = rapidfuzz_match(pdf_abstract, candidate_abstract_list)
+        return rapidfuzz_match(abstract, candidate_abstract_list)
 
     elif MODEL == "cosine":
         # Match pdf abstract with candidate abstracts
-        match_df = cosine_match(pdf, candidate_df)
+        return cosine_match(abstract, candidate_df)
 
-    elif MODEL == "spacy":
-        pass
-
-    elif MODEL == "berttopics":
-        print("Berttopics has not been created yet.")
-
-    else:
-        print("No model was defined!")
-
-    return match_df
+    print(f"{MODEL} has not been implemented yet.")
 
 
 if __name__ == "__main__":
