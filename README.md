@@ -48,8 +48,22 @@ From within Python:
 ## Run uvicorn and streamlit locally
 
 ```shell
-uvicorn selection.api.fast:app --host 0.0.0.0 --reload
+>>> uvicorn selection.api.fast:app --host 0.0.0.0 --reload
 # In a different window:
-streamlit run selection/frontend/app.py
+>>> streamlit run selection/frontend/app.py
 # Open your browser and upload a PDF file.
+```
+
+## Build and run docker and streamlit locally
+
+```shell
+### Open docker desktop
+### If you don't have a .env-file:
+### Rename the .env.sample to .env
+>>> docker build --tag=$GCR_IMAGE:dev .
+### Edit the your/path/to/.env
+>>> docker run -e PORT=8000 -p 8000:8000 --env-file your/path/to/.env $GCR_IMAGE:dev
+### In a different window:
+>>> streamlit run selection/frontend/app.py
+### Run the given link in your browser
 ```
