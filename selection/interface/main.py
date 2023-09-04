@@ -22,10 +22,11 @@ print(f"Model set to '{MODEL}'.")
 
 DATA = Path(__file__).parents[2] / "work_data"
 
+OA_WORKS_FILE = DATA / "all_works_sociology.csv"
+
 
 def get_references_from_pdf(
-    manuscript_filepath: Path,
-    articles_filepath: Path = DATA / "all_works_sociology.csv",
+    manuscript_filepath: Path, articles_filepath: Path = OA_WORKS_FILE
 ) -> tuple[list[str], PDF]:
     """
     Fuzzymatch the references extracted from the manuscript PDF

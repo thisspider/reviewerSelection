@@ -45,13 +45,14 @@ From within Python:
 "This article centers boredom as a racialized emotion by analyzing how it can come ..."
 ```
 
-## Run uvicorn and streamlit locally
+## Run web interface locally
+
+Run both commands in two different terminal windows simultaneously to start
+the [FastAPI](https://fastapi.tiangolo.com) backend and the [Streamlit](https://streamlit.io) frontend.
 
 ```shell
->>> uvicorn selection.api.fast:app --host 0.0.0.0 --reload
-# In a different window:
->>> streamlit run selection/frontend/app.py
-# Open your browser and upload a PDF file.
+make run_fastapi
+make run_streamlit
 ```
 
 ## Build and run docker and streamlit locally
