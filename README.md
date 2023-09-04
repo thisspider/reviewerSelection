@@ -67,3 +67,27 @@ From within Python:
 >>> streamlit run selection/frontend/app.py
 ### Run the given link in your browser
 ```
+
+## Deploy the API and Streamlit Cloud
+
+```shell
+### Enable the Google Container Registry API for your project in GCP.
+### https://console.cloud.google.com/flows/enableapi?apiid=containerregistry.googleapis.com&redirect=https://cloud.google.com/### container-registry/docs/quickstart
+
+### Allow the docker command to push a repository
+>>> gcloud auth configure-docker
+### Build the docker image
+>>> docker build -t $GCR_REGION/$GCP_PROJECT/$GCR_IMAGE:prod .
+### Push the docker image to your Google Cloud Repository
+>>> docker push $GCR_REGION/$GCP_PROJECT/$GCR_IMAGE:prod
+
+### Deploy your container
+>>> gcloud run deploy --image $GCR_REGION/$GCP_PROJECT/$GCR_IMAGE:prod --memory $GCR_MEMORY --region $GCP_REGION --env-vars-file .env.yaml
+
+### Create a streamlit app
+### 1. Input the given url into selection/frontend/app.py
+### 2. Fork the Repository
+### 3. Use forked repository to create app
+
+### Voila!
+```
