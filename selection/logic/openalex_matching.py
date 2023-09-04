@@ -98,18 +98,18 @@ test.head()
 
 
 def cosine_match(
-    pdf_instance: object, open_alex_works: pd.DataFrame, n_grams=(1, 1), use_idf=True
-):
+    abstract: str, open_alex_works: pd.DataFrame, n_grams=(1, 1), use_idf=True
+) -> pd.DataFrame:
     similarities = []
     open_alex_works["abstracts"] = open_alex_works["abstracts"].map(
         lambda x: x if type(x) == str else "No abstract"
     )
     vectorizer_idf = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
     vectors_idf = vectorizer_idf.fit_transform(open_alex_works["abstracts"])
-    target_vector_idf = vectorizer_idf.transform([pdf_instance.abstract])
+    target_vector_idf = vectorizer_idf.transform([abstract])
     vectorizer = TfidfVectorizer(use_idf=False, ngram_range=n_grams)
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
-    target_vector = vectorizer.transform([pdf_instance.abstract])
+    target_vector = vectorizer.transform([abstract])
 
     for i in range(len(open_alex_works)):
         similarity = [

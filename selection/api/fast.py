@@ -28,7 +28,7 @@ def select(uploaded_pdf: UploadFile):
     print("Step1 done")
     candidates_df = create_candidates_df(openalex_ids)
     print("Step2 done")
-    reviewers_df = select_reviewers(pdf, candidates_df)
+    reviewers_df = select_reviewers(pdf.abstract, candidates_df)
     print("Step3 done")
 
     # Close temporary file
