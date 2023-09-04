@@ -1,7 +1,7 @@
 FROM python:3.10.13-slim
 
 RUN apt-get update
-RUN apt-get -y install poppler-utils libmagic1
+RUN apt-get -y install poppler-utils libmagic1 gcc python3-dev
 
 WORKDIR /prod
 
