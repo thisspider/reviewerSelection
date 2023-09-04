@@ -1,11 +1,16 @@
+import os
 from pathlib import Path
 
 import pandas as pd
 
 from selection.logic.create_candidate_list import create_ref_csv, extract_refs
 from selection.logic.merge_operation import merge_references_oaworks
-from selection.logic.openalex_matching import rapidfuzz_match
+from selection.logic.openalex_matching import cosine_match, rapidfuzz_match
 from selection.logic.pdf import PDF
+
+MODEL = os.getenv("MODEL", "cosine")
+
+print(f"Model set to '{MODEL}'.")
 
 # 1 Link pdf to openalex
 # Extraction and matching
@@ -13,10 +18,6 @@ from selection.logic.pdf import PDF
 # 2 Create candidate list
 
 # 3 Select reviewers from candidate list
-
-# Test using:
-# matched_pdf, pdf = pdf_matching('work_data/test.pdf')
-# print(matched_pdf)
 
 
 def get_references_from_pdf(path: str):
@@ -74,10 +75,25 @@ def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
     pdf_abstract = pdf.abstract
 
     # Turn candidate DataFrame into list of candidate abstracts
-    candidate_abstract_list = candidate_df["abstracts"]
+    # candidate_abstract_list = candidate_df["abstracts"]
 
-    # Match pdf abstract with candidate abstracts
-    # Get df with top 2 matches
-    match_df = rapidfuzz_match(pdf_abstract, candidate_abstract_list)
+    if MODEL == "fuzzymatch":
+        # Turn candidate DataFrame into list of candidate abstracts
+        candidate_abstract_list = candidate_df["abstracts"]
+        # Match pdf abstract with candidate abstracts
+        match_df = rapidfuzz_match(pdf_abstract, candidate_abstract_list)
+
+    elif MODEL == "cosine":
+        # Match pdf abstract with candidate abstracts
+        match_df = cosine_match(pdf, candidate_df)
+
+    elif MODEL == "spacy":
+        pass
+
+    elif MODEL == "berttopics":
+        print("Berttopics has not been created yet.")
+
+    else:
+        print("No model was defined!")
 
     return match_df

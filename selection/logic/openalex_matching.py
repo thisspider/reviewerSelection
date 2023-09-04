@@ -122,14 +122,16 @@ def text_similarity(text1, text2):
     return similarity
 
 
-def cosine_match(target_ref: list, open_alex_works: list, n_grams=(1, 1), use_idf=True):
+def cosine_match(
+    pdf_instance: object, open_alex_works: pd.DataFrame, n_grams=(1, 1), use_idf=True
+):
     similarities = []
     open_alex_works["abstracts"] = open_alex_works["abstracts"].map(
         lambda x: x if type(x) == str else "No abstract"
     )
     vectorizer = TfidfVectorizer(use_idf=use_idf, ngram_range=n_grams)
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
-    target_vector = vectorizer.transform([target_ref["abstracts"]])
+    target_vector = vectorizer.transform([pdf_instance.abstract])
 
     for i in range(len(open_alex_works)):
         similarity = [
@@ -151,6 +153,8 @@ def cosine_match(target_ref: list, open_alex_works: list, n_grams=(1, 1), use_id
         "abstracts",
         "cos_sim",
     ]
+    similarities = similarities.sort_values(by="cos_sim", ascending=False)
+
     return similarities
 
 
