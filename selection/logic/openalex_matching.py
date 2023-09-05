@@ -4,6 +4,8 @@ import pandas as pd
 from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import pickle
+from selection.logic.pdf import PDF
 
 # WARNING: `choices` and `extracted_references` subjected to change.
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
@@ -107,6 +109,7 @@ def cosine_match(
     vectorizer_idf = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
     vectors_idf = vectorizer_idf.fit_transform(open_alex_works["abstracts"])
     target_vector_idf = vectorizer_idf.transform([abstract])
+
     vectorizer = TfidfVectorizer(use_idf=False, ngram_range=n_grams)
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
     target_vector = vectorizer.transform([abstract])
@@ -156,3 +159,58 @@ def get_journals(oa_works: pd.DataFrame, journal_issnl: list[str]):
         if str(oa_work["journal_issnl"]) in journal_issnl
     ]
     return pd.DataFrame(results)
+
+
+def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 2)) -> pd.DataFrame:
+    """
+    - Train the tfidf_model on the whole sociology works dataframe.
+    - Save the tfidf_model to google
+    """
+    all_works_sociology["abstracts"] = all_works_sociology["abstracts"].map(
+        lambda x: x if type(x) == str else "No abstract"
+    )
+    tfidf_model = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
+    tfidf_model.fit(all_works_sociology["abstracts"])
+
+    filename = "finalized_tfidf_model.sav"
+    pickle.dump(tfidf_model, open(filename, "wb"))
+
+
+def load_tfidf_cosine_match(
+    all_works_df: pd.DataFrame, pdf_abstract: str, tfidf_pickel_filename: str
+):
+    """
+    - load tfidf_model trained on all_works_sociology
+    - transform pdf_abstract and all_works_sociology['abstracts'] with loaded model
+    - use cosine_similarity on vectorized abstracts of pdf and dataframe
+    - return dataframe with added cosine_similarity
+    """
+    all_works_df["abstracts"] = all_works_df["abstracts"].map(
+        lambda x: x if type(x) == str else "No abstract"
+    )
+    loaded_model = pickle.load(open(tfidf_pickel_filename, "rb"))
+    print(loaded_model)
+    pdf_abstract_vector = loaded_model.transform([pdf_abstract])
+    print(pdf_abstract_vector)
+    all_works_abstracts_vectors = loaded_model.transform(all_works_df["abstracts"])
+    similarities = []
+    for i in range(all_works_abstracts_vectors.shape[0]):
+        similarities.append(
+            cosine_similarity(pdf_abstract_vector, all_works_abstracts_vectors[i])
+        )
+    all_works_df["all_works_sociology_tfidf"] = similarities
+
+    return all_works_df
+
+
+if __name__ == "__main__":
+    final_all_works_sociology_data = pd.read_csv(
+        "work_data/final_all_works_sociology_from_bq.csv"
+    )
+    save_tfidf_model(final_all_works_sociology_data)
+    test_pdf_abstract = PDF("work_data/test.pdf").abstract
+    print("Got test_pdf_abstract!")
+    end_df = load_tfidf_cosine_match(
+        final_all_works_sociology_data, test_pdf_abstract, "finalized_tfidf_model.sav"
+    )
+    end_df.to_csv("test_pdf_tfidf_all_works.csv")

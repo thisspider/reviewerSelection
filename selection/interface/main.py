@@ -6,7 +6,11 @@ import pandas as pd
 from selection.logic import ModelName
 from selection.logic.create_candidate_list import create_ref_csv, extract_refs
 from selection.logic.merge_operation import merge_references_oaworks
-from selection.logic.openalex_matching import cosine_match, rapidfuzz_match
+from selection.logic.openalex_matching import (
+    cosine_match,
+    rapidfuzz_match,
+    load_tfidf_cosine_match,
+)
 from selection.logic.pdf import PDF
 
 # 1 Link pdf to openalex
@@ -83,5 +87,11 @@ def select_reviewers(
     elif model == ModelName.cosine:
         # Match pdf abstract with candidate abstracts
         return cosine_match(abstract, candidate_df)
+
+    elif model == ModelName.tfidf_all:
+        # Match pdf abstract with candidate abstracts
+        return load_tfidf_cosine_match(
+            candidate_df, abstract, "finalized_tfidf_model.sav"
+        )
 
     print(f"{model} has not been implemented yet.")
