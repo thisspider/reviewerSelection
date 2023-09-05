@@ -40,3 +40,19 @@ def test_api():
     )
     reviewers = response.json()
     print(reviewers)
+
+
+def test_openalex_references():
+    references = [
+        "Abdelal, Rawi, Yoshiko M. Herrera, Alastair Iain Johnston, and Rose "
+        "McDermott. 2006. “Identity as a Variable.” Perspectives on Politics "
+        "4 (4): 695–711.",
+        "Alba, Richard, and Victor Nee. 2003. Remaking the American Mainstream: "
+        "Assimilation and Contemporary Immigration. Cambridge, Mass.: "
+        "Harvard University Press.",
+    ]
+    response = requests.post(BACKEND_URL + "/openalex_references", json=references)
+    assert response.json() == [
+        "https://openalex.org/W2859186085",
+        "https://openalex.org/W1964398892",
+    ]
