@@ -1,7 +1,8 @@
+import os
+from pathlib import Path
+
 import pandas as pd
 from google.cloud import bigquery
-from pathlib import Path
-import os
 
 
 def load_data_to_bq(data: pd.DataFrame, gcp_project: str, bq_dataset: str, table: str):
