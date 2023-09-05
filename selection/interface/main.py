@@ -1,16 +1,13 @@
-import os
+import time
 from pathlib import Path
 
 import pandas as pd
 
+from selection.logic import ModelName
 from selection.logic.create_candidate_list import create_ref_csv, extract_refs
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import cosine_match, rapidfuzz_match
 from selection.logic.pdf import PDF
-
-MODEL = os.getenv("MODEL", "cosine")
-
-print(f"Model set to '{MODEL}'.")
 
 # 1 Link pdf to openalex
 # Extraction and matching
@@ -19,29 +16,28 @@ print(f"Model set to '{MODEL}'.")
 
 # 3 Select reviewers from candidate list
 
+DATA = Path(__file__).parents[2] / "work_data"
 
-def get_references_from_pdf(path: str):
+OA_WORKS_FILE = DATA / "all_works_sociology.csv"
+
+
+def get_references_from_pdf(
+    manuscript_filepath: Path, articles_filepath: Path = OA_WORKS_FILE
+) -> tuple[list[str], PDF]:
     """
-    Input: Path to pdf file.
-    Output: List of ids for each reference that was extracted out of the pdf
-            and the pdf.
-    -> ids (list), pdf (class object)
+    Fuzzymatch the references extracted from the manuscript PDF
+    with the articles from the articles CSV.
+
+    Returns list of matched OpenAlex Work IDs.
     """
-    # Extract the references out of the pdf
-    pdf = PDF(path)
-    extracted_references = pdf.references
+    start_time = time.time()
+    print("Reading PDF... ")
+    pdf = PDF(manuscript_filepath)
+    print(f"Done ({int(time.time() - start_time)}s)")
 
-    # Load the dataframe with all of the relevant works
-    def load_data(path):
-        return pd.read_csv(path)
-
-    start_path = Path(__file__).parents[2] / "work_data" / "all_works_sociology.csv"
-    all_works_df = load_data(str(start_path))
-
-    # Fuzzymatch the works dataframe with the extracted references -> merge
     openalex_ids = merge_references_oaworks(
-        extracted_references=extracted_references,
-        openalex_works=all_works_df,
+        extracted_references=pdf.references,
+        openalex_works=pd.read_csv(articles_filepath),
     )
 
     return openalex_ids, pdf
@@ -65,35 +61,27 @@ def create_candidates_df(openalex_ids: list):
     return candidate_df
 
 
-def select_reviewers(pdf: object, candidate_df: pd.DataFrame):
+def select_reviewers(
+    abstract: str, candidate_df: pd.DataFrame, model: ModelName
+) -> pd.DataFrame | None:
     """
-    Input: pdf class object and DataFrame with all the candidates
-    Output: DataFrame with the top two matched abstracts
+    Return DataFrame with the top two matched abstracts.
+
+    The manuscript's abstract is matched to works from the DataFrame containing
+    all candidate works.
     """
 
-    # Get abstract of pdf
-    pdf_abstract = pdf.abstract
+    print(f"Calculating candidates using {model}...")
 
-    # Turn candidate DataFrame into list of candidate abstracts
-    # candidate_abstract_list = candidate_df["abstracts"]
-
-    if MODEL == "fuzzymatch":
+    if model == ModelName.fuzzymatch:
         # Turn candidate DataFrame into list of candidate abstracts
         candidate_abstract_list = candidate_df["abstracts"]
+
         # Match pdf abstract with candidate abstracts
-        match_df = rapidfuzz_match(pdf_abstract, candidate_abstract_list)
+        return rapidfuzz_match(abstract, candidate_abstract_list)
 
-    elif MODEL == "cosine":
+    elif model == ModelName.cosine:
         # Match pdf abstract with candidate abstracts
-        match_df = cosine_match(pdf, candidate_df)
+        return cosine_match(abstract, candidate_df)
 
-    elif MODEL == "spacy":
-        pass
-
-    elif MODEL == "berttopics":
-        print("Berttopics has not been created yet.")
-
-    else:
-        print("No model was defined!")
-
-    return match_df
+    print(f"{model} has not been implemented yet.")

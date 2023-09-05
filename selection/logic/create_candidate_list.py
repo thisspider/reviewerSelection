@@ -1,3 +1,5 @@
+from time import time
+
 import pandas as pd
 from pyalex import Works
 
@@ -12,6 +14,9 @@ def extract_refs(oa_id_list):
     """
 
     # oa_id_list = temp
+
+    start = time()
+    print("Obtaining first layer of references from OpenAlex...")
 
     first_layer_full = []
     for ref in range(0, len(oa_id_list), 25):
@@ -30,13 +35,20 @@ def extract_refs(oa_id_list):
         {i for lists in first_layer_full for i in lists}
     )  # list comprehension returning a set
 
+    print(f"Done. ({int(time() - start)}s)")
+
     ## second layer
+    start = time()
+    print("Obtaining second layer of references from OpenAlex...")
     second_layer = []
     for ref in range(0, len(first_layer_full), 25):
         subset = "|".join(first_layer_full[ref : ref + 25])
         second_layer.append(Works().filter(openalex=subset).get())
 
     final = [entry for lists in second_layer for entry in lists]
+
+    print(f"Done. ({int(time() - start)}s)")
+
     return final
 
 
@@ -49,6 +61,9 @@ def create_ref_csv(refs):
     journal ISSN-L and all authors in correct order.
     Returns a dataframe
     """
+
+    start = time()
+    print("Creating DataFrame for references...")
 
     ids = [w["id"].split("/")[-1] for w in refs]
     abstracts = [w["abstract"] for w in refs]
@@ -71,7 +86,10 @@ def create_ref_csv(refs):
                     authors_per_paper.append(w["author"]["display_name"])
         authors.append(authors_per_paper)
 
-    return pd.DataFrame(
+    result = pd.DataFrame(
         list(zip(ids, year, journal, authors, abstracts)),
         columns=["oa_id", "year", "journal_issnl", "authors", "abstracts"],
     )
+
+    print(f"Done. ({int(time() - start)}s)")
+    return result

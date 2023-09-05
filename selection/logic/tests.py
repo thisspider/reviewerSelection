@@ -5,8 +5,7 @@ from pathlib import Path
 import pytest
 from attr import dataclass
 
-from pdf_extraction import PDF
-from pdf_extraction.pdf import bbox
+from .pdf import PDF, bbox
 
 EXAMPLE_MANUSCRIPT = Path(os.getenv("EXAMPLE_MANUSCRIPT_PATH"))
 
