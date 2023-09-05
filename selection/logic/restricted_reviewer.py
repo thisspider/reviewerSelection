@@ -55,15 +55,15 @@ def retrieve_restricted_names(
 
 # WARNING: Paths may be subjected to change and retrieving restricted names will
 # depend on folder architecture.
-restricted_general = "./consolidated restricted/RESTRICTED GENERAL-Table 1.csv"
-restricted_consulting = "./consolidated restricted/RESTRICTED CONSULTING-Table 1.csv"
-unavailable = "./consolidated restricted/RESTRICTED CONSULTING-Table 1.csv"
-restricted_names = retrieve_restricted_names(
-    restricted_general, restricted_consulting, unavailable
-)
+# restricted_general = "./consolidated restricted/RESTRICTED GENERAL-Table 1.csv"
+# restricted_consulting = "./consolidated restricted/RESTRICTED CONSULTING-Table 1.csv"
+# unavailable = "./consolidated restricted/RESTRICTED CONSULTING-Table 1.csv"
+# restricted_names = retrieve_restricted_names(
+#     restricted_general, restricted_consulting, unavailable
+# )
 
 
-def get_authors(restrictions=False):
+def get_authors(restricted_names, restrictions=False):
     authors = []
     for result in results:
         for authorship in result["authorships"]:

@@ -16,6 +16,7 @@ def process_pdf(pdf_file, csv_file=None):
         url=BACKEND_URL + "/select",
         files={"uploaded_pdf": pdf_file.getvalue()},
     )
+
     st.write()
     potential_reviewers_dict = json.loads(res.json())
     potential_reviewers_df = pd.DataFrame.from_dict(potential_reviewers_dict)
@@ -47,14 +48,14 @@ def process_pdf(pdf_file, csv_file=None):
 
 
 csv_file = st.file_uploader("Choose your csv file", type="csv")
-
 pdf_file = st.file_uploader("Choose your .pdf file", type="pdf")
 
 if pdf_file and csv_file:
     with st.spinner(text="Processing files"):
         process_pdf(pdf_file, csv_file)
         st.success("Done")
-if pdf_file and not csv_file:
+
+if pdf_file:
     with st.spinner(text="Processing PDF"):
         process_pdf(pdf_file)
         st.success("Done")
