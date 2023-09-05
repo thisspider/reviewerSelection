@@ -1,10 +1,13 @@
 import pandas as pd
+from selection.interface.main import OA_WORKS_FILE
 
 
-def extract_works_cited_by_target(all_sociology_works_df, target_oa_ids):
+def extract_works_cited_by_target(target_oa_ids):
     """
     create a csv of first and second layer references
     """
+    all_sociology_works_df = pd.DataFrame.read_csv(OA_WORKS_FILE)
+
     # filter all sociology works by openalex ids from the target manuscript
     first_layer = all_sociology_works_df[
         all_sociology_works_df["oa_id"].isin(target_oa_ids)

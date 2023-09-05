@@ -4,7 +4,8 @@ from pathlib import Path
 import pandas as pd
 
 from selection.logic import ModelName
-from selection.logic.create_candidate_list import create_ref_csv, extract_refs
+from selection.logic.create_candidate_list import create_ref_csv
+from selection.logic.create_candidate_list_from_csv import extract_works_cited_by_target
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import (
     cosine_match,
@@ -57,7 +58,7 @@ def create_candidates_df(openalex_ids: list):
 
     # Get a list of dictionaries
     # Each dictionary represents on work
-    extracted_works = extract_refs(openalex_ids)
+    extracted_works = extract_works_cited_by_target(openalex_ids)
 
     # Turn list of dictionaries into DataFrame
     # columns=["oa_id", "journal_issnl", "authors", "abstracts"]
