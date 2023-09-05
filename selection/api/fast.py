@@ -118,7 +118,7 @@ def reviewers(
     return select_reviewers(abstract, candidate_works, model)
 
 
-@app.post("/select")
+@app.post("/select", deprecated=True)
 def select(uploaded_pdf: UploadFile):
     """
     Give x recommendations for reviewers for the article in the pdf.
