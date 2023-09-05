@@ -30,10 +30,7 @@ def save_data_to_bq(data: pd.DataFrame, gcp_project: str, bq_dataset: str, table
     """
     full_table_name = f"{gcp_project}.{bq_dataset}.{table}"
 
-    data["index"] = data["Unnamed: 0"]
-    data = data.drop(columns=["Unnamed: 0.1", "Unnamed: 0"]).copy()
-
-    client = get_client()
+    client = bigquery.Client()
 
     # Set write_mode to truncate -> delete old data before loading the data
     write_mode = "WRITE_TRUNCATE"
@@ -65,12 +62,16 @@ def load_data_from_bigquery(
 
 
 if __name__ == "__main__":
-    data = pd.read_csv("work_data/all_works_sociology.csv")
+    data = pd.read_csv("raw_data/all_sociology_works_morecols.csv")
     save_data_to_bq(
         data=data, gcp_project=GCP_PROJECT, bq_dataset="all_works", table="sociology"
     )
+    path = (
+        Path(__file__).parents[2]
+        / "work_data"
+        / "final_all_works_sociology_from_bq.csv"
+    )
     data = load_data_from_bigquery(
-        gcp_project=GCP_PROJECT,
-        path="work_data/all_works_sociology_from_bg.csv",
+        path=path,
     )
     print(data)
