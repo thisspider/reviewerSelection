@@ -65,6 +65,7 @@ def create_ref_csv(refs):
     start = time()
     print("Creating DataFrame for references...")
 
+    breakpoint()
     ids = [w["id"].split("/")[-1] for w in refs]
     abstracts = [w["abstract"] for w in refs]
     year = [w["publication_year"] for w in refs]

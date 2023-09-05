@@ -52,6 +52,7 @@ def load_data_from_bigquery(
     if path.exists():
         df = pd.read_csv(path)
     else:
+        print("Loading data from Google BigQuery...")
         query_job = get_client().query(query)
         result = query_job.result()
         df = result.to_dataframe()
