@@ -1,5 +1,6 @@
 import pandas as pd
-from selection.interface.main import OA_WORKS_FILE
+
+from selection.logic import OA_WORKS_FILE
 
 
 def extract_works_cited_by_target(target_oa_ids):

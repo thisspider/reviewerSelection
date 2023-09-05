@@ -1,6 +1,11 @@
 from enum import Enum
+from pathlib import Path
 
 from .pdf import PDF  # noqa
+
+DATA = Path(__file__).parents[2] / "work_data"
+
+OA_WORKS_FILE = DATA / "all_works_sociology_from_bq.csv"
 
 
 class ModelName(str, Enum):

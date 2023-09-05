@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from selection.logic import ModelName
+from selection.logic import OA_WORKS_FILE, ModelName
 from selection.logic.create_candidate_list import create_ref_csv
 from selection.logic.create_candidate_list_from_csv import extract_works_cited_by_target
 from selection.logic.merge_operation import merge_references_oaworks
@@ -14,17 +14,6 @@ from selection.logic.openalex_matching import (
 )
 from selection.logic.pdf import PDF
 from selection.logic.spacy_similarity import calculate_spacy_similarity
-
-# 1 Link pdf to openalex
-# Extraction and matching
-
-# 2 Create candidate list
-
-# 3 Select reviewers from candidate list
-
-DATA = Path(__file__).parents[2] / "work_data"
-
-OA_WORKS_FILE = DATA / "all_works_sociology_from_bq.csv"
 
 
 def get_references_from_pdf(

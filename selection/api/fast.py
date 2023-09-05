@@ -7,12 +7,11 @@ from fastapi import Body, FastAPI, UploadFile
 from fastapi.responses import RedirectResponse
 
 from selection.interface.main import (
-    OA_WORKS_FILE,
     create_candidates_df,
     get_references_from_pdf,
     select_reviewers,
 )
-from selection.logic import ModelName
+from selection.logic import OA_WORKS_FILE, ModelName
 from selection.logic.bigquery import load_data_from_bigquery
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
