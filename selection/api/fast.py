@@ -15,8 +15,11 @@ from selection.interface.main import (
 from selection.logic import ModelName
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
+from selection.logic.bigquery import load_data_from_bigquery
 
 app = FastAPI()
+
+load_data_from_bigquery(path=OA_WORKS_FILE)
 
 
 @app.get("/", include_in_schema=False)

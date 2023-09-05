@@ -18,7 +18,7 @@ from selection.logic.pdf import PDF
 
 DATA = Path(__file__).parents[2] / "work_data"
 
-OA_WORKS_FILE = DATA / "all_works_sociology.csv"
+OA_WORKS_FILE = DATA / "all_works_sociology_from_bq.csv"
 
 
 def get_references_from_pdf(

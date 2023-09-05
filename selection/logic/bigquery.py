@@ -46,18 +46,20 @@ def save_data_to_bq(data: pd.DataFrame, gcp_project: str, bq_dataset: str, table
 
 
 def load_data_from_bigquery(
-    gcp_project: str,
     path: Path,
     query: str = "SELECT * FROM united-park-392410.all_works.sociology",
 ) -> pd.DataFrame:
     """
     Retrieve `query` data from BigQuery and save it to `path`.
     """
-    query_job = get_client().query(query)
-    result = query_job.result()
-    df = result.to_dataframe()
+    if path.exists():
+        df = pd.read_csv(path)
+    else:
+        query_job = get_client().query(query)
+        result = query_job.result()
+        df = result.to_dataframe()
 
-    df.to_csv(path)
+        df.to_csv(path)
 
     return df
 
