@@ -13,6 +13,7 @@ pre-commit
 pyalex
 pylint
 pytest
+python-magic-bin ; sys_platform == 'win32'
 python-multipart
 python-slugify[unidecode]
 rapidfuzz

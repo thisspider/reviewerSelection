@@ -14,6 +14,11 @@ pre-commit install
 
 Make sure that `pdftotext` is available on your system (it is required by refextract).
 
+-   On Linux (i.e. Debian/Ubuntu) you need the `libmagic1` package.
+-   On MacOs, when using Homebrew: `brew install libmagic`.
+    When using macports: `port install file`
+-   On Windows, run `pip install python-magic-bin`.
+
 ## Extract infos from PDF
 
 The class `pdf_extraction.PDF` will read the following from a given PDF file:
