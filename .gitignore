@@ -1,7 +1,8 @@
 .python-version
 /.env*
 /raw_data/
-/work_data/all_works_sociology_from_bg.csv
+/work_data/all_works_sociology_from_bq.csv
+/work_data/final_all_works_sociology_from_bq.csv
 
 # Compiled Python
 *.py[cod]
