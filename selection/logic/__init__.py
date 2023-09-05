@@ -10,3 +10,4 @@ class ModelName(str, Enum):
     cosine = "Cosine-Similarity"
     fuzzymatch = "FuzzyMatching"
     spacy = "Spacy"
+    tfidf_all = "Tfidf_all"
