@@ -9,7 +9,7 @@ def test_api():
     # Step 1
     files = {"pdf_file": (DATA / "test.pdf").open("rb")}
     response = requests.post(
-        BACKEND_URL + "/pdf", json={"extract_references": True}, files=files
+        BACKEND_URL + "/pdf", params={"extract_references": True}, files=files
     )
     pdf_data = response.json()
     assert "title" in pdf_data
