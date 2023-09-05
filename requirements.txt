@@ -49,7 +49,9 @@ blis==0.7.10
 build==0.10.0
     # via pip-tools
 cachetools==5.3.1
-    # via streamlit
+    # via
+    #   google-auth
+    #   streamlit
 catalogue==2.0.9
     # via
     #   spacy
@@ -98,6 +100,8 @@ cymem==2.0.7
     #   preshed
     #   spacy
     #   thinc
+db-dtypes==1.1.1
+    # via -r requirements.in
 debugpy==1.6.7.post1
     # via ipykernel
 decorator==5.1.1
@@ -135,6 +139,33 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.33
     # via streamlit
+google-api-core[grpc]==2.11.1
+    # via
+    #   google-cloud-bigquery
+    #   google-cloud-core
+google-auth==2.22.0
+    # via
+    #   google-api-core
+    #   google-cloud-core
+google-cloud-bigquery==3.11.4
+    # via -r requirements.in
+google-cloud-core==2.3.3
+    # via google-cloud-bigquery
+google-crc32c==1.5.0
+    # via google-resumable-media
+google-resumable-media==2.5.0
+    # via google-cloud-bigquery
+googleapis-common-protos==1.60.0
+    # via
+    #   google-api-core
+    #   grpcio-status
+grpcio==1.57.0
+    # via
+    #   google-api-core
+    #   google-cloud-bigquery
+    #   grpcio-status
+grpcio-status==1.57.0
+    # via google-api-core
 h11==0.14.0
     # via uvicorn
 identify==2.5.27
@@ -284,6 +315,7 @@ numpy==1.25.2
     #   altair
     #   blis
     #   contourpy
+    #   db-dtypes
     #   matplotlib
     #   pandas
     #   pyarrow
@@ -301,6 +333,8 @@ packaging==23.1
     #   altair
     #   black
     #   build
+    #   db-dtypes
+    #   google-cloud-bigquery
     #   ipykernel
     #   jupyter-server
     #   jupyterlab
@@ -315,6 +349,7 @@ pandas==2.1.0
     # via
     #   -r requirements.in
     #   altair
+    #   db-dtypes
     #   seaborn
     #   streamlit
 pandocfilters==1.5.0
@@ -359,8 +394,16 @@ prometheus-client==0.17.1
     # via jupyter-server
 prompt-toolkit==3.0.39
     # via ipython
+proto-plus==1.22.3
+    # via google-cloud-bigquery
 protobuf==4.24.2
-    # via streamlit
+    # via
+    #   google-api-core
+    #   google-cloud-bigquery
+    #   googleapis-common-protos
+    #   grpcio-status
+    #   proto-plus
+    #   streamlit
 psutil==5.9.5
     # via ipykernel
 ptyprocess==0.7.0
@@ -372,7 +415,15 @@ pure-eval==0.2.2
 pyalex==0.11
     # via -r requirements.in
 pyarrow==13.0.0
-    # via streamlit
+    # via
+    #   db-dtypes
+    #   streamlit
+pyasn1==0.5.0
+    # via
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.3.0
+    # via google-auth
 pycparser==2.21
     # via cffi
 pydantic==2.3.0
@@ -410,6 +461,7 @@ pytest==7.4.0
 python-dateutil==2.8.2
     # via
     #   arrow
+    #   google-cloud-bigquery
     #   inspire-utils
     #   jupyter-client
     #   matplotlib
@@ -449,6 +501,8 @@ regex==2023.8.8
     # via nltk
 requests==2.31.0
     # via
+    #   google-api-core
+    #   google-cloud-bigquery
     #   jupyterlab-server
     #   pyalex
     #   refextract
@@ -470,6 +524,8 @@ rpds-py==0.10.0
     # via
     #   jsonschema
     #   referencing
+rsa==4.9
+    # via google-auth
 ruff==0.0.286
     # via -r requirements.in
 scikit-learn==1.3.0
@@ -484,6 +540,7 @@ six==1.16.0
     # via
     #   asttokens
     #   bleach
+    #   google-auth
     #   inspire-utils
     #   python-dateutil
     #   refextract
@@ -603,6 +660,7 @@ uri-template==1.3.0
 urllib3==1.26.12
     # via
     #   dulwich
+    #   google-auth
     #   inspire-utils
     #   requests
 uvicorn==0.23.2

@@ -24,3 +24,5 @@ seaborn
 spacy
 streamlit
 uvicorn
+google-cloud-bigquery
+db-dtypes
