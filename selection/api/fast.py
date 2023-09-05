@@ -138,7 +138,8 @@ def select(uploaded_pdf: UploadFile):
     print("Step1 done")
     candidates_df = create_candidates_df(openalex_ids)
     print("Step2 done")
-    reviewers_df = select_reviewers(pdf.abstract, candidates_df)
+    breakpoint()
+    reviewers_df = select_reviewers(pdf.abstract, candidates_df, "Cosine-Similarity")
     print("Step3 done")
 
     # Close temporary file
