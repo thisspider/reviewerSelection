@@ -3,23 +3,7 @@ import time
 import pandas as pd
 from rapidfuzz import fuzz
 
-from selection.logic.openalex_matching import get_unique_ids, rapidfuzz_match
-
-# references_path = './raw_data/AJS_1_teeger2023.pdf.txt'
-# oa_path = "./all_works_sociology.csv"
-
-
-def get_references_from_path(references_path):
-    extracted_references = pd.read_csv(references_path, delimiter="\t")
-    return extracted_references
-
-
-def get_openalex_from_path(oa_path):
-    openalex_works = pd.read_csv(oa_path)
-    return openalex_works
-
-
-# openalex_works = get_openalex_from_path(oa_path)
+from selection.logic.openalex_matching import rapidfuzz_match
 
 
 def merge_references_oaworks(
@@ -40,3 +24,17 @@ def merge_references_oaworks(
 
     print(f"Done. ({int(time.time() - start_time)}s)")
     return matched_df_oa["openalex_ids"]
+
+
+def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
+    """
+    Optional: Can fold get_unique_ids into rapidfuzz_match if refactoring is
+    neccessary Both return the same Dataframe
+    """
+    openalex_ids = []
+    for top_match in matched_df["top_match"]:
+        index = top_match[2]
+        openalex_id = openalex_works[openalex_id_col_name][index]
+        openalex_ids.append(openalex_id)
+    matched_df["openalex_ids"] = openalex_ids
+    return matched_df

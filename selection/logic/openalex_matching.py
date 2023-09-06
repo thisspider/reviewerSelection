@@ -1,14 +1,9 @@
 import pickle
-from datetime import datetime
 
 import pandas as pd
 from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
-# WARNING: `choices` and `extracted_references` subjected to change.
-choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
-extracted_references = ["Cowboys", "Falcons"]
 
 
 def rapidfuzz_match(
@@ -78,26 +73,6 @@ def rapidfuzz_match(
     return matched_df
 
 
-def get_unique_ids(matched_df, openalex_works, openalex_id_col_name):
-    """
-    Optional: Can fold get_unique_ids into rapidfuzz_match if refactoring is
-    neccessary Both return the same Dataframe
-    """
-    openalex_ids = []
-    for top_match in matched_df["top_match"]:
-        index = top_match[2]
-        openalex_id = openalex_works[openalex_id_col_name][index]
-        openalex_ids.append(openalex_id)
-    matched_df["openalex_ids"] = openalex_ids
-    return matched_df
-
-
-test = rapidfuzz_match(
-    extracted_references=extracted_references, openalex_works=choices
-)
-test.head()
-
-
 def cosine_match(
     abstract: str, open_alex_works: pd.DataFrame, n_grams=(1, 1), use_idf=True
 ) -> pd.DataFrame:
@@ -142,26 +117,6 @@ def cosine_match(
     similarities = similarities.sort_values(by="cos_sim", ascending=False)
 
     return similarities
-
-
-def get_n_years(oa_works: pd.DataFrame, n_years=10):
-    """
-    oa_works should be the resulting DataFrame outputted by cosine_match
-    """
-    result = oa_works[oa_works["year"] >= (datetime.now().year - n_years)]
-    return result
-
-
-def get_journals(oa_works: pd.DataFrame, journal_issnl: list[str]):
-    """
-    oa_works should be the resulting DataFrame outputted by cosine_match
-    """
-    results = [
-        oa_work
-        for i, oa_work in oa_works.iterrows()
-        if str(oa_work["journal_issnl"]) in journal_issnl
-    ]
-    return pd.DataFrame(results)
 
 
 def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 1)) -> pd.DataFrame:
