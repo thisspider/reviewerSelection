@@ -63,7 +63,7 @@ def load_data_from_bigquery(
 
 
 if __name__ == "__main__":
-    data = pd.read_csv("raw_data/all_sociology_works_morecols.csv")
+    data = pd.read_csv("raw_data/all_sociology_works_v1.csv")
     save_data_to_bq(
         data=data, gcp_project=GCP_PROJECT, bq_dataset="all_works", table="sociology"
     )

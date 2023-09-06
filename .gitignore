@@ -3,6 +3,9 @@
 /raw_data/
 /work_data/all_works_sociology_from_bq.csv
 /work_data/final_all_works_sociology_from_bq.csv
+/work_data/all_sociology_works (1).csv
+/work_data/all_sociology_works (1).csv:Zone.Identifier
+/work_data/all_works_sociology_from_bg.csv
 
 # Compiled Python
 *.py[cod]

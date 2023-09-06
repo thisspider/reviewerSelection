@@ -12,6 +12,7 @@ from selection.logic.openalex_matching import (
     rapidfuzz_match,
 )
 from selection.logic.pdf import PDF
+from selection.logic.spacy_similarity import calculate_spacy_similarity
 
 # 1 Link pdf to openalex
 # Extraction and matching
@@ -89,9 +90,18 @@ def select_reviewers(
         return cosine_match(abstract, candidate_df)
 
     elif model == ModelName.tfidf_all:
-        # Match pdf abstract with candidate abstracts
+        # Match pdf abstract with all abstracts from relevant journals
         return load_tfidf_cosine_match(
             pd.read_csv(OA_WORKS_FILE), abstract, "finalized_tfidf_model.sav"
         )
+
+    elif model == ModelName.spacy:
+        # Match pdf abstract with all abstracts from relevant journals
+        return calculate_spacy_similarity(abstract, candidate_df)
+
+    elif model == ModelName.spacy_all:
+        # Match pdf abstract with all abstracts from relevant journals
+        candidate_df = pd.read_csv(OA_WORKS_FILE)
+        return calculate_spacy_similarity(abstract, candidate_df)
 
     print(f"{model} has not been implemented yet.")

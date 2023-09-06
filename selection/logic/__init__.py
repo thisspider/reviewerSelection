@@ -11,3 +11,4 @@ class ModelName(str, Enum):
     fuzzymatch = "FuzzyMatching"
     spacy = "Spacy"
     tfidf_all = "Tfidf_all"
+    spacy_all = "Spacy_all"
