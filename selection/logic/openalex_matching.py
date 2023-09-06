@@ -100,8 +100,7 @@ test.head()
 
 
 def cosine_match(
-    abstract: str, open_alex_works: pd.DataFrame, n_grams=(1, 1), use_idf=True
-) -> pd.DataFrame:
+    abstract: str, open_alex_works: pd.DataFrame, n_grams=(1, 1)) -> pd.DataFrame:
     similarities = []
     open_alex_works["abstracts"] = open_alex_works["abstracts"].map(
         lambda x: x if type(x) == str else "No abstract"
@@ -114,6 +113,22 @@ def cosine_match(
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
     target_vector = vectorizer.transform([abstract])
 
+    similarities_tfidf = []
+    for i in range(vectors_idf.shape[0]):
+        similarities.append(
+            cosine_similarity(target_vector_idf, vectors_idf[i])
+        )
+    open_alex_works["all_works_sociology_tfidf"] = similarities_tfidf
+
+    similarities = []
+    for i in range(vectors.shape[0]):
+        similarities.append(
+            cosine_similarity(target_vector, vectors[i])
+        )
+    open_alex_works["all_works_sociology_tfidf"] = similarities
+
+    return open_alex_works
+'''
     for i in range(len(open_alex_works)):
         similarity = [
             open_alex_works.iloc[i]["oa_id"],
@@ -139,7 +154,7 @@ def cosine_match(
     similarities = similarities.sort_values(by="cos_sim", ascending=False)
 
     return similarities
-
+'''
 
 def get_n_years(oa_works: pd.DataFrame, n_years=10):
     """
