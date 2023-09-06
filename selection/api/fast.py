@@ -4,20 +4,16 @@ from typing import Annotated
 
 import pandas as pd
 from fastapi import Body, FastAPI, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi.responses import ORJSONResponse, RedirectResponse
 
-from selection.interface.main import (
-    OA_WORKS_FILE,
-    create_candidates_df,
-    get_references_from_pdf,
-    select_reviewers,
-)
-from selection.logic import ModelName
+from selection.interface.main import select_reviewers
+from selection.logic import OA_WORKS_FILE, ModelName
 from selection.logic.bigquery import load_data_from_bigquery
+from selection.logic.create_candidate_list_from_csv import extract_works_cited_by_target
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
 
-app = FastAPI()
+app = FastAPI(default_response_class=ORJSONResponse)
 
 load_data_from_bigquery(path=OA_WORKS_FILE)
 
@@ -94,7 +90,7 @@ def candidate_works(openalex_works: list[str]) -> list[dict]:
     The list of related works is extracted from citations of citations
     of the input manuscript in OpenAlex.
     """
-    return create_candidates_df(pd.Series(openalex_works)).to_dict(orient="records")
+    return extract_works_cited_by_target(openalex_works).to_dict(orient="records")
 
 
 @app.post("/reviewers")
@@ -109,35 +105,3 @@ def reviewers(
     using the specified model.
     """
     return select_reviewers(abstract, candidate_works, model)
-
-
-@app.post("/select", deprecated=True)
-def select(uploaded_pdf: UploadFile):
-    """
-    Give x recommendations for reviewers for the article in the pdf.
-    """
-    # Save uploaded_pdf
-    pdf = uploaded_pdf.file.read()
-
-    # Create temporary file/path
-    temp_pdf = NamedTemporaryFile(suffix=".pdf")
-    temp_pdf.write(pdf)
-
-    # Run functions
-    openalex_ids, pdf = get_references_from_pdf(temp_pdf.name)
-    print("Step1 done")
-    candidates_df = create_candidates_df(openalex_ids)
-    print("Step2 done")
-    reviewers_df = select_reviewers(pdf.abstract, candidates_df)
-    print("Step3 done")
-
-    # Close temporary file
-    temp_pdf.close()
-    print("closed")
-
-    # Turn DataFrame to json string
-    json_string = reviewers_df.to_json()
-    print("Turned to json")
-    print(json_string)
-
-    return json_string

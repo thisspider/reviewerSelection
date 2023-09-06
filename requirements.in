@@ -5,6 +5,7 @@ jupyterlab
 matplotlib
 numpy
 nltk
+orjson
 pandas
 pdbpp
 pdfquery

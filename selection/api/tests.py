@@ -1,6 +1,6 @@
 import requests
 
-from selection.interface.main import DATA
+from selection.logic import DATA
 
 BACKEND_URL = "http://localhost:8000"
 
@@ -55,4 +55,41 @@ def test_openalex_references():
     assert response.json() == [
         "https://openalex.org/W2859186085",
         "https://openalex.org/W1964398892",
+    ]
+
+
+def test_candidate_works():
+    target_oa_ids = [
+        "W2859186085",
+        "W2511126224",
+        "W2962890699",
+        "W1552443447",
+        "W2956796797",
+        "W2892323740",
+        "W4245727781",
+        "W2134702882",
+        "W4247628946",
+        "W2011366791",
+    ]
+    response = requests.post(BACKEND_URL + "/candidate_works", json=target_oa_ids)
+    assert list(response.json()[0].keys()) == [
+        "id",
+        "publication_year",
+        "language",
+        "journal_issnl",
+        "journal_name",
+        "authors",
+        "author_institutions",
+        "title",
+        "concepts_name",
+        "concepts_level",
+        "concepts_score",
+        "cited_by_count",
+        "referenced_works",
+        "related_works",
+        "abstracts",
+        "works_referenced_related",
+        "authors_first_lastname",
+        "title_slugified",
+        "concat_name_title",
     ]
