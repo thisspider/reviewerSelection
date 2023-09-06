@@ -208,6 +208,7 @@ def process_pdf():
                 files={"pdf_file": pdf_file.getvalue()},
                 params={"extract_references": extract_references},
             )
+            response.raise_for_status()
 
         show_pdf_data(response.json())
 
@@ -270,6 +271,7 @@ def show_model_selection():
 def match_references(references: list[str]) -> None:
     with st.spinner(text="Matching references from PDF with OpenAlex works..."):
         response = requests.post(BACKEND_URL + "/openalex_references", json=references)
+        response.raise_for_status()
         st.session_state.openalex_works = response.json()
 
     st.write("Matched references.")
@@ -280,6 +282,7 @@ def match_references(references: list[str]) -> None:
 def candidate_works(openalex_works: list[str]):
     with st.spinner(text="Generating candidates..."):
         response = requests.post(BACKEND_URL + "/candidate_works", json=openalex_works)
+        response.raise_for_status()
         st.session_state.candidate_works = response.json()
 
     st.write("Generated candidate works.")
@@ -298,8 +301,9 @@ def results():
                 "model": st.session_state.model,
             },
         )
+        response.raise_for_status()
         st.session_state.results = response.json()
-        st.dataframe(st.session_state.results)
+        st.dataframe(filter_data_frame(st.session_state.results))
 
 
 process_pdf()
