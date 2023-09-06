@@ -5,7 +5,6 @@ from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
-from selection.logic.pdf import PDF
 
 # WARNING: `choices` and `extracted_references` subjected to change.
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
@@ -161,7 +160,7 @@ def get_journals(oa_works: pd.DataFrame, journal_issnl: list[str]):
     return pd.DataFrame(results)
 
 
-def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 2)) -> pd.DataFrame:
+def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 1)) -> pd.DataFrame:
     """
     - Train the tfidf_model on the whole sociology works dataframe.
     - Save the tfidf_model to google
@@ -208,7 +207,22 @@ if __name__ == "__main__":
         "work_data/final_all_works_sociology_from_bq.csv"
     )
     save_tfidf_model(final_all_works_sociology_data)
-    test_pdf_abstract = PDF("work_data/test.pdf").abstract
+    test_pdf_abstract = """
+    This article centers boredom as a racialized emotion by analyzing how it can
+    come to characterize encounters with histories of racial oppression. Drawing
+    on data collected in two racially diverse South African high schools, I
+    document how and why students framed the history of apartheid as boring. To
+    do so, I capitalize on the comparative interest shown in the Holocaust,
+    which they studied the same year. Whereas the Holocaust was told as a
+    psychosocial causal narrative, apartheid was presented primarily through
+    lists of laws and events. A lack of causal narrative hindered students’
+    ability to carry the story into the present and created a sense of
+    disengagement. Boredom muted discussions of the ongoing legacies of the past
+    and functioned as an emotional defense of the status quo. I discuss the
+    implications for literatures on racialized emotions, collective memory, and
+    history education
+    """
+    # test_pdf_abstract = PDF("work_data/test.pdf").abstract
     print("Got test_pdf_abstract!")
     end_df = load_tfidf_cosine_match(
         final_all_works_sociology_data, test_pdf_abstract, "finalized_tfidf_model.sav"
