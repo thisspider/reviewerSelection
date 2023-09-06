@@ -12,6 +12,11 @@ BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Reviewer Selection")
 st.title("Reviewer Selection")
+st.write(
+    "**This service finds possible peer reviewers for a manuscript based on similar publications derived from the website [openalex.org](%s).**"
+    % "https://explore.openalex.org/"
+)
+st.divider()
 
 st.session_state.openalex_works = []
 st.session_state.candidate_works = []
@@ -191,17 +196,27 @@ def filter_data_frame(df: pd.DataFrame) -> pd.DataFrame:
 
 def process_pdf():
     """Take uploaded PDF from the user and store extracted data in session."""
-    pdf_file = st.file_uploader("Choose your .pdf file", type="pdf")
-    extract_references = st.checkbox(
-        "Extract references",
-        value=True,
-        key=None,
-        help="Disable for debugging purposes and faster results "
-        "if you only want to check the PDF parsing of "
-        "title, authors and abstract.",
-    )
+
+    with st.sidebar:
+        pdf_file = st.file_uploader("Choose your .pdf file", type="pdf")
+        extract_references = st.checkbox(
+            "Extract references",
+            value=True,
+            key=None,
+            help="Disable for debugging purposes and faster results "
+            "if you only want to check the PDF parsing of "
+            "title, authors and abstract.",
+        )
+
+    if not pdf_file:
+        st.write(
+            "Start by adding a manuscript PDF in the sidebar. "
+            "The PDF processing will start automatically."
+        )
+        st.write("")
 
     if pdf_file:
+        st.write("")
         with st.spinner(text="Processing PDF"):
             response = requests.post(
                 url=BACKEND_URL + "/pdf",
@@ -215,6 +230,12 @@ def process_pdf():
 
 def show_pdf_data(pdf_data: dict) -> None:
     st.markdown("#### Your PDF")
+    st.markdown(
+        "This is the title, authors and abstract extracted from your PDF. "
+        "Please double-check the information below in order to ensure the model "
+        "to work correctly. You can input and/or change the information in each field. "
+        "If everything is correct, please select a model in the sidebar and click **Continue**."
+    )
 
     st.text_input(
         "Title",
@@ -246,47 +267,49 @@ def show_pdf_data(pdf_data: dict) -> None:
 
 
 def show_model_selection():
-    options = [
-        "(All)",
-        "bertopic",
-        "cosine",
-        "fuzzymatch",
-        "spacy",
-        "tfidf_all",
-    ]
-    st.session_state.model = st.selectbox(
-        "What model would should be used to select the reviewers?", options
-    )
+    with st.sidebar:
+        st.divider()
+        st.write("")
+        options = [
+            "(All)",
+            "bertopic",
+            "cosine",
+            "fuzzymatch",
+            "spacy",
+            "tfidf_all",
+        ]
+        st.session_state.model = st.selectbox(
+            "Please select the model to use for reviewer selection?", options
+        )
 
-    st.button(
-        "Continue",
-        key=None,
-        help="Match references in PDF with OpenAlex works.",
-        on_click=match_references,
-        args=[st.session_state.references],
-        use_container_width=False,
-    )
+        st.button(
+            "Continue",
+            key=None,
+            help="Match references in PDF with OpenAlex works.",
+            on_click=match_references,
+            args=[st.session_state.references],
+            use_container_width=False,
+        )
 
 
 def match_references(references: list[str]) -> None:
-    with st.spinner(text="Matching references from PDF with OpenAlex works..."):
+    with st.spinner(text="Matching references from PDF with works from OpenAlex..."):
         response = requests.post(BACKEND_URL + "/openalex_references", json=references)
         response.raise_for_status()
         st.session_state.openalex_works = response.json()
-
-    st.write("Matched references.")
-    st.write("Continuing with generating candidate works...")
+    st.write(
+        "Matching references from PDF with works from OpenAlex.  :heavy_check_mark:"
+    )
     candidate_works(st.session_state.openalex_works)
 
 
 def candidate_works(openalex_works: list[str]):
-    with st.spinner(text="Generating candidates..."):
+    with st.spinner(text="Generating candidate works..."):
         response = requests.post(BACKEND_URL + "/candidate_works", json=openalex_works)
         response.raise_for_status()
         st.session_state.candidate_works = response.json()
 
-    st.write("Generated candidate works.")
-    st.write("Continuing with selecting reviewers / works...")
+    st.write("Generating candidate work done.  :heavy_check_mark:")
 
     results()
 
@@ -301,16 +324,9 @@ def results():
                 "model": st.session_state.model,
             },
         )
-        response.raise_for_status()
+        st.write("Generating results.  :heavy_check_mark:")
         st.session_state.results = response.json()
         st.dataframe(filter_data_frame(st.session_state.results))
 
 
 process_pdf()
-
-st.divider()
-debug_expander = st.expander("Debug information:")
-debug_expander.write("references")
-debug_expander.write(references)
-debug_expander.write("st.session_state")
-debug_expander.write(st.session_state)
