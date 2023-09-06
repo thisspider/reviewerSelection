@@ -8,8 +8,8 @@ from selection.logic.create_candidate_list import create_ref_csv, extract_refs
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import (
     cosine_match,
-    rapidfuzz_match,
     load_tfidf_cosine_match,
+    rapidfuzz_match,
 )
 from selection.logic.pdf import PDF
 

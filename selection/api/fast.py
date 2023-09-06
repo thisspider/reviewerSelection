@@ -3,7 +3,7 @@ from time import time
 from typing import Annotated
 
 import pandas as pd
-from fastapi import Body, FastAPI, File, UploadFile
+from fastapi import Body, FastAPI, UploadFile
 from fastapi.responses import RedirectResponse
 
 from selection.interface.main import (
@@ -13,9 +13,9 @@ from selection.interface.main import (
     select_reviewers,
 )
 from selection.logic import ModelName
+from selection.logic.bigquery import load_data_from_bigquery
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
-from selection.logic.bigquery import load_data_from_bigquery
 
 app = FastAPI()
 
@@ -66,10 +66,7 @@ def pdf(pdf_file: UploadFile, extract_references: bool = True):
 
 
 @app.post("/openalex_references")
-def openalex_references(
-    references: list[str],
-    works_csv_file: UploadFile = File(None),
-) -> list[str]:
+def openalex_references(references: list[str]) -> list[str]:
     """
     Match the given list of references
     (obtained by extracting them from a PDF manuscript)
@@ -82,14 +79,7 @@ def openalex_references(
     for each matched reference input.
     """
 
-    # Choose whether to use the uploaded CSV or our local version.
-    if not works_csv_file:
-        works_csv_file = OA_WORKS_FILE
-    else:
-        temp_file = NamedTemporaryFile(suffix=".csv")
-        temp_file.write(works_csv_file.file.read())
-        works_csv_file = temp_file.name
-
+    works_csv_file = OA_WORKS_FILE
     result = merge_references_oaworks(
         extracted_references=references,
         openalex_works=pd.read_csv(works_csv_file),
