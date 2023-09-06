@@ -293,7 +293,8 @@ def results():
         response = requests.post(
             BACKEND_URL + "/reviewers",
             json={
-                "candidate_works": candidate_works,
+                "abstract": st.session_state.pdf_abstract,
+                "candidate_works": st.session_state.candidate_works,
                 "model": st.session_state.model,
             },
         )
