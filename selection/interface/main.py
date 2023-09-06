@@ -9,7 +9,6 @@ from selection.logic.openalex_matching import (
 from selection.logic.spacy_similarity import calculate_spacy_similarity
 
 
-
 def select_reviewers(
     abstract: str, candidate_df: pd.DataFrame, model: ModelName
 ) -> pd.DataFrame | None:
@@ -48,4 +47,4 @@ def select_reviewers(
         candidate_df = pd.read_csv(OA_WORKS_FILE)
         return calculate_spacy_similarity(abstract, candidate_df)
 
-    print(f"{model} has not been implemented yet.")
+    raise (f"{model} has not been implemented yet.")

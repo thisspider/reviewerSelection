@@ -1,10 +1,10 @@
+import pickle
 from datetime import datetime
 
 import pandas as pd
 from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import pickle
 
 # WARNING: `choices` and `extracted_references` subjected to change.
 choices = ["Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys"]
@@ -103,7 +103,7 @@ def cosine_match(
 ) -> pd.DataFrame:
     similarities = []
     open_alex_works["abstracts"] = open_alex_works["abstracts"].map(
-        lambda x: x if type(x) == str else "No abstract"
+        lambda x: x if isinstance(x, str) else "No abstract"
     )
     vectorizer_idf = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
     vectors_idf = vectorizer_idf.fit_transform(open_alex_works["abstracts"])
@@ -113,21 +113,25 @@ def cosine_match(
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
     target_vector = vectorizer.transform([abstract])
 
+    def flatten_to_list(value):
+        # Allow JSON serialization of numpy.ndarray
+        return value.flatten().flatten().tolist()
+
     for i in range(len(open_alex_works)):
         similarity = [
-            open_alex_works.iloc[i]["oa_id"],
-            open_alex_works.iloc[i]["year"],
+            open_alex_works.iloc[i]["id"],
+            open_alex_works.iloc[i]["publication_year"],
             open_alex_works.iloc[i]["journal_issnl"],
             open_alex_works.iloc[i]["authors"],
             open_alex_works.iloc[i]["abstracts"],
-            cosine_similarity(target_vector, vectors[i]),
-            cosine_similarity(target_vector_idf, vectors_idf[i]),
+            flatten_to_list(cosine_similarity(target_vector, vectors[i])),
+            flatten_to_list(cosine_similarity(target_vector_idf, vectors_idf[i])),
         ]
 
         similarities.append(similarity)
     similarities = pd.DataFrame(similarities)
     similarities.columns = [
-        "oa_id",
+        "id",
         "year",
         "journal_issnl",
         "authors",
@@ -166,7 +170,7 @@ def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 1)) -> pd.Da
     - Save the tfidf_model to google
     """
     all_works_sociology["abstracts"] = all_works_sociology["abstracts"].map(
-        lambda x: x if type(x) == str else "No abstract"
+        lambda x: x if isinstance(x, str) else "No abstract"
     )
     tfidf_model = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
     tfidf_model.fit(all_works_sociology["abstracts"])
@@ -185,7 +189,7 @@ def load_tfidf_cosine_match(
     - return dataframe with added cosine_similarity
     """
     all_works_df["abstracts"] = all_works_df["abstracts"].map(
-        lambda x: x if type(x) == str else "No abstract"
+        lambda x: x if isinstance(x, str) else "No abstract"
     )
     loaded_model = pickle.load(open(tfidf_pickel_filename, "rb"))
     print(loaded_model)

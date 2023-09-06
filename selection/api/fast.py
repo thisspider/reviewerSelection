@@ -96,12 +96,14 @@ def candidate_works(openalex_works: list[str]) -> list[dict]:
 @app.post("/reviewers")
 def reviewers(
     abstract: Annotated[str, Body()],
-    candidate_works: list[str],
-    model: ModelName = "cosine",
+    candidate_works: list[dict],
+    model: ModelName = Body(ModelName.tfidf_all),
 ):
     """
     Given a manuscript's abstract,
     return a list of top-matching OpenAlex Work IDs for candidate works,
     using the specified model.
     """
-    return select_reviewers(abstract, candidate_works, model)
+    return select_reviewers(abstract, pd.DataFrame(candidate_works), model).to_dict(
+        orient="records"
+    )
