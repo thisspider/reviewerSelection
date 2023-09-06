@@ -6,6 +6,9 @@ import streamlit as st
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
+st.set_page_config(page_title="Reviewer Selection")
+st.title("Reviewer Selection")
+
 st.session_state.openalex_works = []
 st.session_state.candidate_works = []
 st.session_state.model = "(All)"
