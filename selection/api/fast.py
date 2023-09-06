@@ -105,35 +105,3 @@ def reviewers(
     using the specified model.
     """
     return select_reviewers(abstract, candidate_works, model)
-
-
-@app.post("/select", deprecated=True)
-def select(uploaded_pdf: UploadFile):
-    """
-    Give x recommendations for reviewers for the article in the pdf.
-    """
-    # Save uploaded_pdf
-    pdf = uploaded_pdf.file.read()
-
-    # Create temporary file/path
-    temp_pdf = NamedTemporaryFile(suffix=".pdf")
-    temp_pdf.write(pdf)
-
-    # Run functions
-    openalex_ids, pdf = get_references_from_pdf(temp_pdf.name)
-    print("Step1 done")
-    candidates_df = create_candidates_df(openalex_ids)
-    print("Step2 done")
-    reviewers_df = select_reviewers(pdf.abstract, candidates_df)
-    print("Step3 done")
-
-    # Close temporary file
-    temp_pdf.close()
-    print("closed")
-
-    # Turn DataFrame to json string
-    json_string = reviewers_df.to_json()
-    print("Turned to json")
-    print(json_string)
-
-    return json_string
