@@ -57,7 +57,7 @@ def load_data_from_bigquery(
         result = query_job.result()
         df = result.to_dataframe()
 
-        df.to_csv(path)
+        df.to_csv(path, index=False)
 
     return df
 

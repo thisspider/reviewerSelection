@@ -6,13 +6,10 @@ import pandas as pd
 from fastapi import Body, FastAPI, UploadFile
 from fastapi.responses import ORJSONResponse, RedirectResponse
 
-from selection.interface.main import (
-    create_candidates_df,
-    get_references_from_pdf,
-    select_reviewers,
-)
+from selection.interface.main import select_reviewers
 from selection.logic import OA_WORKS_FILE, ModelName
 from selection.logic.bigquery import load_data_from_bigquery
+from selection.logic.create_candidate_list_from_csv import extract_works_cited_by_target
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
 
@@ -93,7 +90,7 @@ def candidate_works(openalex_works: list[str]) -> list[dict]:
     The list of related works is extracted from citations of citations
     of the input manuscript in OpenAlex.
     """
-    return create_candidates_df(pd.Series(openalex_works)).to_dict(orient="records")
+    return extract_works_cited_by_target(openalex_works).to_dict(orient="records")
 
 
 @app.post("/reviewers")
