@@ -201,6 +201,25 @@ def candidate_works(openalex_works: list[str]):
 
 process_pdf()
 
+if "match_restricted" not in st.session_state:
+    st.session_state.match_restricted = False
+
+
+def toggle_match_restricted():
+    st.session_state.match_restricted = True
+
+
+if st.session_state.match_restricted is False:
+    st.button("Upload restricted reviewers list", on_click=toggle_match_restricted)
+else:
+    st.button(
+        "Upload restricted reviewers list",
+        on_click=toggle_match_restricted,
+        disabled=True,
+    )
+
+if st.session_state.match_restricted:
+    csv_file = st.file_uploader("Choose your .csv file", type="csv")
 
 st.button(
     "Continue",
@@ -210,7 +229,7 @@ st.button(
     args=[st.session_state.references],
     use_container_width=False,
 )
-
+st.divider()
 st.write("Debug information:")
 
 expander_references = st.expander("References")
