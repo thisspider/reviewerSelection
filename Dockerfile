@@ -8,6 +8,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 COPY work_data work_data
+COPY .gcp_service_account.json .gcp_service_account.json
 COPY selection selection
 COPY setup.py setup.py
 RUN pip install .
