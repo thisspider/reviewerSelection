@@ -3,15 +3,20 @@ from time import time
 from typing import Annotated
 
 import pandas as pd
-from fastapi import Body, FastAPI, UploadFile
+from fastapi import Body, FastAPI, HTTPException, UploadFile
 from fastapi.responses import ORJSONResponse, RedirectResponse
 
-from selection.interface.main import select_reviewers
 from selection.logic import OA_WORKS_FILE, ModelName
 from selection.logic.bigquery import load_data_from_bigquery
 from selection.logic.create_candidate_list_from_csv import extract_works_cited_by_target
 from selection.logic.merge_operation import merge_references_oaworks
+from selection.logic.openalex_matching import (
+    cosine_match,
+    load_tfidf_cosine_match,
+    rapidfuzz_match,
+)
 from selection.logic.pdf import PDF
+from selection.logic.spacy_similarity import calculate_spacy_similarity
 
 app = FastAPI(default_response_class=ORJSONResponse)
 
@@ -104,6 +109,33 @@ def reviewers(
     return a list of top-matching OpenAlex Work IDs for candidate works,
     using the specified model.
     """
-    return select_reviewers(abstract, pd.DataFrame(candidate_works), model).to_dict(
-        orient="records"
-    )
+
+    print(f"Calculating candidates using {model}...")
+
+    candidate_df = pd.DataFrame(candidate_works)
+
+    if model == ModelName.fuzzymatch:
+        # Match pdf abstract with candidate abstracts
+        result = rapidfuzz_match(abstract, candidate_df["abstracts"])
+    elif model == ModelName.cosine:
+        # Match pdf abstract with candidate abstracts
+        result = cosine_match(abstract, candidate_df)
+    elif model == ModelName.tfidf_all:
+        # Match pdf abstract with all abstracts from relevant journals
+        result = load_tfidf_cosine_match(
+            pd.read_csv(OA_WORKS_FILE), abstract, "finalized_tfidf_model.sav"
+        )
+    elif model == ModelName.spacy:
+        # Match pdf abstract with all abstracts from relevant journals
+        result = calculate_spacy_similarity(abstract, candidate_df)
+    elif model == ModelName.spacy_all:
+        # Match pdf abstract with all abstracts from relevant journals
+        candidate_df = pd.read_csv(OA_WORKS_FILE)
+        result = calculate_spacy_similarity(abstract, candidate_df)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{model} has not been implemented.",
+        )
+
+    return result.to_dict(orient="records")
