@@ -4,7 +4,7 @@ from typing import Annotated
 
 import pandas as pd
 from fastapi import Body, FastAPI, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi.responses import ORJSONResponse, RedirectResponse
 
 from selection.interface.main import (
     create_candidates_df,
@@ -16,7 +16,7 @@ from selection.logic.bigquery import load_data_from_bigquery
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.pdf import PDF
 
-app = FastAPI()
+app = FastAPI(default_response_class=ORJSONResponse)
 
 load_data_from_bigquery(path=OA_WORKS_FILE)
 

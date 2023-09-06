@@ -326,6 +326,8 @@ numpy==1.25.2
     #   spacy
     #   streamlit
     #   thinc
+orjson==3.9.5
+    # via -r requirements.in
 overrides==7.4.0
     # via jupyter-server
 packaging==23.1
