@@ -91,7 +91,7 @@ def select_reviewers(
     elif model == ModelName.tfidf_all:
         # Match pdf abstract with candidate abstracts
         return load_tfidf_cosine_match(
-            candidate_df, abstract, "finalized_tfidf_model.sav"
+            pd.read_csv(OA_WORKS_FILE), abstract, "finalized_tfidf_model.sav"
         )
 
     print(f"{model} has not been implemented yet.")
