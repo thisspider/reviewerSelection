@@ -1,12 +1,12 @@
 import os
 import subprocess
 from pathlib import Path
-import pandas as pd
 
+import pandas as pd
 import pytest
 from attr import dataclass
-from selection.logic import DATA
 
+from selection.logic import DATA
 from selection.logic.openalex_matching import load_tfidf_cosine_match
 
 from .pdf import PDF, bbox
@@ -259,11 +259,7 @@ def test_idf_model():
     history education
     """
 
-    end_df = load_tfidf_cosine_match(
-        final_all_works_sociology_data,
-        test_pdf_abstract,
-        str(DATA / "finalized_tfidf_model.sav"),
-    )
+    end_df = load_tfidf_cosine_match(final_all_works_sociology_data, test_pdf_abstract)
     assert list(end_df.columns) == [
         "id",
         "publication_year",

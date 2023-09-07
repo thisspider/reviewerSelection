@@ -5,6 +5,8 @@ from rapidfuzz import fuzz, process
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from selection.logic import DATA
+
 
 def rapidfuzz_match(
     extracted_references: list, openalex_works: list, scorer=fuzz.WRatio
@@ -119,6 +121,9 @@ def cosine_match(
     return similarities
 
 
+TF_IDF_MODEL_PICKLE = DATA / "finalized_tfidf_model.pickle"
+
+
 def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 1)) -> pd.DataFrame:
     """
     - Train the tfidf_model on the whole sociology works dataframe.
@@ -130,13 +135,10 @@ def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 1)) -> pd.Da
     tfidf_model = TfidfVectorizer(use_idf=True, ngram_range=n_grams)
     tfidf_model.fit(all_works_sociology["abstracts"])
 
-    filename = "work_data/finalized_tfidf_model.sav"
-    pickle.dump(tfidf_model, open(filename, "wb"))
+    pickle.dump(tfidf_model, TF_IDF_MODEL_PICKLE.open("wb"))
 
 
-def load_tfidf_cosine_match(
-    all_works_df: pd.DataFrame, pdf_abstract: str, tfidf_pickel_filename: str
-):
+def load_tfidf_cosine_match(all_works_df: pd.DataFrame, pdf_abstract: str):
     """
     - load tfidf_model trained on all_works_sociology
     - transform pdf_abstract and all_works_sociology['abstracts'] with loaded model
@@ -146,8 +148,7 @@ def load_tfidf_cosine_match(
     all_works_df["abstracts"] = all_works_df["abstracts"].map(
         lambda x: x if isinstance(x, str) else "No abstract"
     )
-    loaded_model = pickle.load(open(tfidf_pickel_filename, "rb"))
-    print(loaded_model)
+    loaded_model = pickle.load(TF_IDF_MODEL_PICKLE.open("rb"))
     pdf_abstract_vector = loaded_model.transform([pdf_abstract])
     print(pdf_abstract_vector)
     all_works_abstracts_vectors = loaded_model.transform(all_works_df["abstracts"])
