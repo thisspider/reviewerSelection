@@ -123,7 +123,7 @@ def reviewers(
     elif model == ModelName.tfidf_all:
         # Match pdf abstract with all abstracts from relevant journals
         result = load_tfidf_cosine_match(
-            pd.read_csv(OA_WORKS_FILE), abstract, "finalized_tfidf_model.sav"
+            pd.read_csv(OA_WORKS_FILE), abstract, "work_data/finalized_tfidf_model.sav"
         )
     elif model == ModelName.spacy:
         # Match pdf abstract with all abstracts from relevant journals
