@@ -2,12 +2,16 @@ import os
 import subprocess
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from attr import dataclass
 
+from selection.logic import DATA
+from selection.logic.openalex_matching import load_tfidf_cosine_match
+
 from .pdf import PDF, bbox
 
-EXAMPLE_MANUSCRIPT = Path(os.getenv("EXAMPLE_MANUSCRIPT_PATH"))
+EXAMPLE_MANUSCRIPT = Path(os.getenv("EXAMPLE_MANUSCRIPT_PATH", "."))
 
 
 def test_python_api():
@@ -232,3 +236,49 @@ def test_bbox():
         Element(attrib={"x0": 195, "y0": 609, "x1": 397, "y1": 626}),
     ]
     assert bbox(elements) == {"x0": 127, "y0": 609, "x1": 465, "y1": 663}
+
+
+def test_idf_model():
+    csv_path = DATA / "all_works_sociology_from_bq.csv"
+    assert csv_path.exists()
+    breakpoint()
+    final_all_works_sociology_data = pd.read_csv(csv_path)
+    test_pdf_abstract = """
+    This article centers boredom as a racialized emotion by analyzing how it can
+    come to characterize encounters with histories of racial oppression. Drawing
+    on data collected in two racially diverse South African high schools, I
+    document how and why students framed the history of apartheid as boring. To
+    do so, I capitalize on the comparative interest shown in the Holocaust,
+    which they studied the same year. Whereas the Holocaust was told as a
+    psychosocial causal narrative, apartheid was presented primarily through
+    lists of laws and events. A lack of causal narrative hindered students’
+    ability to carry the story into the present and created a sense of
+    disengagement. Boredom muted discussions of the ongoing legacies of the past
+    and functioned as an emotional defense of the status quo. I discuss the
+    implications for literatures on racialized emotions, collective memory, and
+    history education
+    """
+
+    end_df = load_tfidf_cosine_match(final_all_works_sociology_data, test_pdf_abstract)
+    assert list(end_df.columns) == [
+        "id",
+        "publication_year",
+        "language",
+        "journal_issnl",
+        "journal_name",
+        "authors",
+        "author_institutions",
+        "title",
+        "concepts_name",
+        "concepts_level",
+        "concepts_score",
+        "cited_by_count",
+        "referenced_works",
+        "related_works",
+        "abstracts",
+        "works_referenced_related",
+        "authors_first_lastname",
+        "title_slugified",
+        "concat_name_title",
+        "all_works_sociology_tfidf",
+    ]
