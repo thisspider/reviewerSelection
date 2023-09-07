@@ -4,7 +4,9 @@ import pandas as pd
 import requests
 import streamlit as st
 
-BACKEND_URL = os.getenv("BACKEND_URL", "https://reviewer-selection.streamlit.app")
+BACKEND_URL = os.getenv(
+    "BACKEND_URL", "https://reviewerselectionv2-xybezttb3a-ew.a.run.app"
+)
 
 st.set_page_config(page_title="Reviewer Selection")
 
