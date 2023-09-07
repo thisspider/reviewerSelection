@@ -10,6 +10,8 @@ cd $PROJECT_NAME
 pyenv virtualenv $PROJECT_NAME
 pip install -r requirements.txt
 pre-commit install
+cp .env.sample .env
+cp .env.yaml.sample .env.yaml
 ```
 
 Make sure that `pdftotext` is available on your system (it is required by refextract).
