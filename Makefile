@@ -9,6 +9,6 @@ run_streamlit:
 
 deploy:
 	cat .env
-	docker build -t ${GCR_REGION}/${GCP_PROJECT}/${GCR_IMAGE}:prod .
-	docker push ${GCR_REGION}/${GCP_PROJECT}/${GCR_IMAGE}:prod
-	gcloud run deploy --image ${GCR_REGION}/${GCP_PROJECT}/${GCR_IMAGE}:${IMAGE_TAG} --memory ${GCR_MEMORY} --region ${GCP_REGION}
+	docker build -t ${GCR_REGION}/${GCP_PROJECT}/${GCR_IMAGE}:${IMAGE_TAG} .
+	docker push ${GCR_REGION}/${GCP_PROJECT}/${GCR_IMAGE}:${IMAGE_TAG}
+	gcloud run deploy --image ${GCR_REGION}/${GCP_PROJECT}/${GCR_IMAGE}:${IMAGE_TAG} --memory ${GCR_MEMORY} --region ${GCP_REGION} --cpu 8 --min-instances 1
