@@ -10,6 +10,8 @@ cd $PROJECT_NAME
 pyenv virtualenv $PROJECT_NAME
 pip install -r requirements.txt
 pre-commit install
+cp .env.sample .env
+cp .env.yaml.sample .env.yaml
 ```
 
 Make sure that `pdftotext` is available on your system (it is required by refextract).
@@ -76,24 +78,18 @@ make run_streamlit
 
 ## Deploy the API and Streamlit Cloud
 
-```shell
-### Enable the Google Container Registry API for your project in GCP.
-### https://console.cloud.google.com/flows/enableapi?apiid=containerregistry.googleapis.com&redirect=https://cloud.google.com/### container-registry/docs/quickstart
+The Streamlit frontend is deployed from pushes to the `streamlit` branch
+automatically by the Streamlit Cloud service.
 
-### Allow the docker command to push a repository
->>> gcloud auth configure-docker
-### Build the docker image
->>> docker build -t $GCR_REGION/$GCP_PROJECT/$GCR_IMAGE:prod .
-### Push the docker image to your Google Cloud Repository
->>> docker push $GCR_REGION/$GCP_PROJECT/$GCR_IMAGE:prod
+Our FastAPI backend that's used by the Streamlit frontend
+is deployed by building a Docker image,
+pushing it to Google Cloud Compute and running it.
 
-### Deploy your container
->>> gcloud run deploy --image $GCR_REGION/$GCP_PROJECT/$GCR_IMAGE:prod --memory $GCR_MEMORY --region $GCP_REGION --env-vars-file .env.yaml
-
-### Create a streamlit app
-### 1. Input the given url into selection/frontend/app.py
-### 2. Fork the Repository
-### 3. Use forked repository to create app
-
-### Voila!
-```
+1. Check the evironment variables in `.env`
+   (if it doesn't exist, create it from `.env.sample`),
+1. Enable the Google Container Registry API for your project in [GCP](https://console.cloud.google.com/flows/enableapi?apiid=containerregistry.googleapis.com),
+1. Allow the Docker command to push to a repository
+    ```shell
+    gcloud auth configure-docker
+    ```
+1. Run `make deploy`
