@@ -8,6 +8,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 from selection.logic import DATA
 
 
+def flatten_to_list(value):
+    # Allow JSON serialization of numpy.ndarray
+    return value.flatten().flatten().tolist()
+
+
 def rapidfuzz_match(
     extracted_references: list, openalex_works: list, scorer=fuzz.WRatio
 ):
@@ -90,10 +95,6 @@ def cosine_match(
     vectors = vectorizer.fit_transform(open_alex_works["abstracts"])
     target_vector = vectorizer.transform([abstract])
 
-    def flatten_to_list(value):
-        # Allow JSON serialization of numpy.ndarray
-        return value.flatten().flatten().tolist()
-
     for i in range(len(open_alex_works)):
         similarity = [
             open_alex_works.iloc[i]["id"],
@@ -155,8 +156,12 @@ def load_tfidf_cosine_match(all_works_df: pd.DataFrame, pdf_abstract: str):
     similarities = []
     for i in range(all_works_abstracts_vectors.shape[0]):
         similarities.append(
-            cosine_similarity(pdf_abstract_vector, all_works_abstracts_vectors[i])
+            flatten_to_list(
+                cosine_similarity(pdf_abstract_vector, all_works_abstracts_vectors[i])
+            )
         )
+
     all_works_df["all_works_sociology_tfidf"] = similarities
+    print(all_works_df)
 
     return all_works_df
