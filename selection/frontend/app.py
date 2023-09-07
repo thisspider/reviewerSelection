@@ -20,7 +20,6 @@ st.divider()
 
 st.session_state.openalex_works = []
 st.session_state.candidate_works = []
-st.session_state.model = "(All)"
 
 # TODO: Remove this once the pipeline is complete.
 # ruff: noqa: E501
@@ -279,12 +278,13 @@ def show_model_selection():
             "tfidf_all",
         ]
         st.session_state.model = st.selectbox(
-            "Please select the model to use for reviewer selection?", options
+            "Please select the model to use for reviewer selection?",
+            options,
+            index=2,
         )
 
         st.button(
             "Continue",
-            key=None,
             help="Match references in PDF with OpenAlex works.",
             on_click=match_references,
             args=[st.session_state.references],
