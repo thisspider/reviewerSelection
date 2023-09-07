@@ -1,0 +1,18 @@
+# ignore the git repository info and the pip installation cache
+.git
+.cache
+
+# tests don't belong inside the repo.
+tests
+
+# no need to package info about the packaged-up code in egg form.
+*.egg-info
+
+# These files are here for local development, but have nothing
+# to do with the code itself, and don't belong on the docker image.
+Makefile
+pylintrc
+setup.cfg
+__pycache__
+.coverage
+.pytest_cache
