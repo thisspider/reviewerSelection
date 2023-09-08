@@ -11,7 +11,12 @@ from selection.logic.openalex_matching import load_tfidf_cosine_match
 
 from .pdf import PDF, bbox
 
-EXAMPLE_MANUSCRIPT = Path(os.getenv("EXAMPLE_MANUSCRIPT_PATH", "."))
+EXAMPLE_MANUSCRIPT = Path(
+    os.getenv(
+        "EXAMPLE_MANUSCRIPT_PATH",
+        Path(__file__).parents[3] / "reviewerSelection-data" / "EXAMPLE_MANUSCRIPT",
+    )
+)
 
 
 def test_python_api():
