@@ -6,7 +6,7 @@ import tempfile
 from dataclasses import dataclass
 from itertools import pairwise
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import click
 import pandas as pd
@@ -99,6 +99,20 @@ class PDF:
         if references:
             self.extract_references()
 
+    def __str__(self):
+        return f"PDF: {self.authors} {self.title}"
+
+    def __repr__(self):
+        return f"PDF({self.pdf_path}, references={bool(self.references)})"
+
+    def __dict__(self):
+        return {
+            "title": self.title,
+            "authors": self.authors,
+            "abstract": self.abstract,
+            "references": self.references,
+        }
+
     def _run_pdfquery(self, pdf_path: Path) -> None:
         self.pdf_path = pdf_path
 
@@ -132,12 +146,6 @@ class PDF:
             ]
         )
 
-    def __str__(self):
-        return f"PDF: {self.authors} {self.title}"
-
-    def __repr__(self):
-        return f"PDF({self.pdf_path}, references={bool(self.references)})"
-
     def summary(self):
         click.secho("Title: ", bold=True, fg="green", nl=False)
         click.echo(self.title)
@@ -150,7 +158,9 @@ class PDF:
             for ref in self.references:
                 click.echo(f"* {ref[:70]}")
 
-    def get_text_from_bbox(self, bbox: BBox):
+    def get_text_from_bbox(self, bbox: BBox) -> Optional[str]:
+        if not bbox:
+            return
         return clean(
             "".join(
                 e.text for e in self.pq.find(f":in_bbox('{bbox}')").filter(has_text)
@@ -161,12 +171,11 @@ class PDF:
         self.title_bbox = self.get_title_bbox_for_biggest_elements()
 
         if not self.has_frontmatter:
-            self.title = self.get_text_from_bbox(
-                self.get_title_bbox_for_biggest_elements()
-            )
+            self.title = self.get_text_from_bbox(self.title_bbox)
 
-            if len(self.title) > 100:
-                self.title = self.get_text_from_bbox(self.get_title_bbox_by_distance())
+            if not self.title or len(self.title) > 100:
+                self.title_bbox = self.get_title_bbox_by_distance()
+                self.title = self.get_text_from_bbox(self.title_bbox)
 
     def get_title_bbox_for_biggest_elements(self):
         elements = self.pq.find("LTTextLineHorizontal,LTTextBoxHorizontal").filter(
@@ -184,16 +193,19 @@ class PDF:
         title_elems = elements.filter(biggest_font)
         return bbox(title_elems)
 
-    def get_title_bbox_by_distance(self) -> BBox:
+    def get_title_bbox_by_distance(self) -> Optional[BBox]:
         upper_third = f"0,{self.page_height * 2/3},{self.page_width},{self.page_height}"
         elements = (
             self.pq(f":in_bbox('{upper_third}')")
             .filter(has_text)
             .filter(is_centered(self.page_width))
         )
+        if not elements:
+            return
 
         title_elements = []
         for el_1, el_2 in pairwise(elements):
+            # TODO: User upper and lower bound.
             y0_el_1 = float(el_1.attrib["y0"])
             y1_el_2 = float(el_2.attrib["y1"])
             distance = round(y0_el_1 - y1_el_2, 1)
@@ -205,7 +217,10 @@ class PDF:
             else:
                 break
 
-        return bbox(title_elements)
+        if title_elements:
+            return bbox(title_elements)
+        else:
+            return bbox(elements[:1])
 
     def extract_abstract(self):
         self.extract_abstract_by_cue_element()
@@ -216,7 +231,7 @@ class PDF:
         # pp [(r[0], r[1].text[:15], r[2].text[:15]) for r in results]
 
         try:
-            cue_elem = self.pq.find(":contains('Abstract')").filter(has_text)[0]
+            cue_elem = self.pq.find(":contains('bstract')").filter(has_text)[0]
         except IndexError:
             return
 
@@ -228,34 +243,9 @@ class PDF:
         for el_1, el_2 in zip(elements, elements[1:]):
             y0_el_1 = float(el_1.attrib["y0"])
             y1_el_2 = float(el_2.attrib["y1"])
-            distance = int(y0_el_1 - y1_el_2)
-            results.append((distance, el_1, el_2))
-
-        abstract_elements = []
-        for a, b in pairwise(results):
-            if a[0] == b[0]:
-                abstract_elements.append(a[1])
-            elif abstract_elements:
-                abstract_elements.append(a[1])
-                break
-
-        self.abstract_bbox = bbox(abstract_elements)
-        self.abstract = clean(
-            "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
-        )
-
-    def extract_abstract_by_line_spacing(self):
-        """Assume text with equidistant line spacing after title is the abstract."""
-
-        y0_title = self.title_bbox.y0
-        query = f":in_bbox('0,0,{self.page_width},{y0_title}')"
-        elements = self.pdf.pq(query).filter(has_text)
-
-        results = []
-        for el_1, el_2 in zip(elements, elements[1:]):
-            y0_el_1 = float(el_1.attrib["y0"])
-            y1_el_2 = float(el_2.attrib["y1"])
-            distance = round(y0_el_1 - y1_el_2, 1)
+            # We need to round to a rough value because layouts are not always
+            # perfect.
+            distance = round(y0_el_1 - y1_el_2, 0)
             results.append((distance, el_1, el_2))
 
         abstract_elements = []
@@ -267,7 +257,50 @@ class PDF:
                 break
 
         self.abstract_bbox = bbox(abstract_elements)
-        self.abstract = "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
+        self.abstract = clean(
+            "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
+        )
+
+    def extract_abstract_by_indentation(self):
+        """Assume abstract is indented differently than the rest of the page."""
+        ...
+
+    def extract_abstract_by_line_spacing(self, tolerance: int = 2):
+        """Assume text with equidistant line spacing after title is the abstract.
+
+        ``tolerance`` defines the difference whithin elements are still
+        considered having the same distance.
+        """
+
+        y0_title = self.title_bbox.y0
+        query = f":in_bbox('0,0,{self.page_width},{y0_title}')"
+        elements = self.pq(query).filter(has_text)
+
+        results = []
+        for el_1, el_2 in pairwise(elements):
+            # Use upper bound of higher element and lower bound of lower element
+            # to take their height into account. Oftentimes inconsistent line
+            # *spacing* is compensated by different line *heights* to create
+            # a symmetrical layout.
+            el_1_y1 = float(el_1.get("y1"))  # Upper bound.
+            el_2_y0 = float(el_2.get("y0"))  # Lower bound.
+            distance = round(el_1_y1 - el_2_y0, 0)
+            results.append((distance, el_1, el_2))
+
+        groups = [[]]
+        for a, b in pairwise(results):
+            if abs(a[0] - b[0]) <= tolerance:
+                groups[-1].append(a[1])
+            elif groups[-1]:
+                groups[-1].append(a[2])
+                groups.append([])
+
+        abstract_elements = max(groups, key=len)
+
+        self.abstract_bbox = bbox(abstract_elements)
+        self.abstract = clean(
+            "".join([re.sub(r"- $", "", e.text) for e in abstract_elements])
+        )
 
     def extract_authors(self) -> list[str]:
         """Get authors from a PDFs document head.
