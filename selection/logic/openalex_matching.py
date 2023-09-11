@@ -139,7 +139,9 @@ def save_tfidf_model(all_works_sociology: pd.DataFrame, n_grams=(1, 1)) -> pd.Da
     pickle.dump(tfidf_model, TF_IDF_MODEL_PICKLE.open("wb"))
 
 
-def load_tfidf_cosine_match(all_works_df: pd.DataFrame, pdf_abstract: str):
+def load_tfidf_cosine_match(
+    all_works_df: pd.DataFrame, pdf_abstract: str, limit: int = 500
+):
     """
     - load tfidf_model trained on all_works_sociology
     - transform pdf_abstract and all_works_sociology['abstracts'] with loaded model
@@ -162,6 +164,6 @@ def load_tfidf_cosine_match(all_works_df: pd.DataFrame, pdf_abstract: str):
         )
 
     all_works_df["all_works_sociology_tfidf"] = similarities
-    print(all_works_df)
-
-    return all_works_df
+    return all_works_df.sort_values("all_works_sociology_tfidf", ascending=False)[
+        :limit
+    ]
