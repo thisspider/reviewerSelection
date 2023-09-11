@@ -105,14 +105,6 @@ class PDF:
     def __repr__(self):
         return f"PDF({self.pdf_path}, references={bool(self.references)})"
 
-    def __dict__(self):
-        return {
-            "title": self.title,
-            "authors": self.authors,
-            "abstract": self.abstract,
-            "references": self.references,
-        }
-
     def _run_pdfquery(self, pdf_path: Path) -> None:
         self.pdf_path = pdf_path
 

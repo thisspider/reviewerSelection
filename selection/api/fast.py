@@ -53,7 +53,16 @@ def pdf(pdf_file: UploadFile, extract_references: bool = True):
     start = time()
     print("Reading PDF...")
 
-    pdf = PDF(temp_file.name, references=extract_references)
+    try:
+        pdf = PDF(temp_file.name, references=extract_references)
+    except Exception as exc:
+        return {
+            "title": "",
+            "authors": [],
+            "abstract": "",
+            "references": [],
+            "_error_": str(exc),
+        }
 
     duration = time() - start
     print(f"Done. ({int(duration)}s)")
