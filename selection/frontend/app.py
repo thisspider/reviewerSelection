@@ -15,7 +15,7 @@ do_continue = None
 
 
 @st.cache_data(show_spinner="Processing PDF")
-def process_pdf(pdf_file):
+def process_pdf(pdf_file) -> dict:
     """Take uploaded PDF from the user and store extracted data in session."""
     try:
         response = requests.post(
@@ -25,6 +25,7 @@ def process_pdf(pdf_file):
         return response.json()
     except requests.HTTPError as exc:
         st.exception(exc)
+        return {}
 
 
 with st.sidebar:
