@@ -7,7 +7,8 @@ from fastapi import Body, FastAPI, HTTPException, UploadFile
 from fastapi.responses import ORJSONResponse, RedirectResponse
 
 from selection.logic import OA_WORKS_FILE, ModelName
-from selection.logic.bigquery import load_data_from_bigquery
+#from selection.logic.bigquery import load_data_from_bigquery
+from selection.logic.bigquery_TW_access import load_data_from_bigquery
 from selection.logic.create_candidate_list_from_csv import extract_works_cited_by_target
 from selection.logic.merge_operation import merge_references_oaworks
 from selection.logic.openalex_matching import (
