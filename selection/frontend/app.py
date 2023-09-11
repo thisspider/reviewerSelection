@@ -5,7 +5,8 @@ import requests
 import streamlit as st
 
 BACKEND_URL = os.getenv(
-    "BACKEND_URL", "https://reviewerselectionv2-xybezttb3a-ew.a.run.app"
+    #"BACKEND_URL", "https://reviewerselectionv2-xybezttb3a-ew.a.run.app"
+    "BACKEND_URL", "https://reviewerselection-tv6twnni7q-ew.a.run.app"
 )
 
 st.set_page_config(page_title="Reviewer Selection")
