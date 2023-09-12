@@ -135,10 +135,14 @@ def reviewers(
     elif model == ModelName.spacy:
         # Match pdf abstract with all abstracts from relevant journals
         result = calculate_spacy_similarity(abstract, candidate_df)
+        result.abstracts_nlp = result.abstracts_nlp.apply(lambda x: x.text)
+        result.drop("works_referenced_related", axis=1, inplace=True)
     elif model == ModelName.spacy_all:
         # Match pdf abstract with all abstracts from relevant journals
         candidate_df = pd.read_csv(OA_WORKS_FILE)
         result = calculate_spacy_similarity(abstract, candidate_df)
+        result.abstracts_nlp = result.abstracts_nlp.apply(lambda x: x.text)
+        result.drop("works_referenced_related", axis=1, inplace=True)
     else:
         raise HTTPException(
             status_code=400,
