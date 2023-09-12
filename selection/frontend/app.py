@@ -5,8 +5,9 @@ import requests
 import streamlit as st
 
 BACKEND_URL = os.getenv(
-    #"BACKEND_URL", "https://reviewerselectionv2-xybezttb3a-ew.a.run.app"
-    "BACKEND_URL", "https://reviewerselection-tv6twnni7q-ew.a.run.app"
+    # "BACKEND_URL", "https://reviewerselectionv2-xybezttb3a-ew.a.run.app"
+    "BACKEND_URL",
+    "https://reviewerselection-tv6twnni7q-ew.a.run.app",
 )
 
 st.set_page_config(page_title="Reviewer Selection")
@@ -65,6 +66,7 @@ if not pdf_file:
     )
     st.divider()
     st.write("Start by adding a manuscript PDF in the sidebar.")
+    st.write(f'Backend Version: {requests.get(BACKEND_URL + "/version").text}')
 else:
     if do_continue:
         with st.spinner(

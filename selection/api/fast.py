@@ -150,3 +150,8 @@ def reviewers(
         )
 
     return result.to_dict(orient="records")
+
+
+@app.get("/version")
+def version():
+    return 0.1
