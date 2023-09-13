@@ -11,6 +11,7 @@ BACKEND_URL = os.getenv(
     "https://reviewerselection-tv6twnni7q-ew.a.run.app",
 )
 
+st.set_page_config(page_title="Reviewer Selection")
 
 st.markdown(
     """
@@ -25,7 +26,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.set_page_config(page_title="Reviewer Selection")
 
 finished = False
 do_continue = None
