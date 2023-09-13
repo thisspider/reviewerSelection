@@ -4,6 +4,14 @@ import pandas as pd
 import requests
 import streamlit as st
 
+# Add custom CSS to hide the GitHub icon
+hide_github_icon = """
+#GithubIcon {
+  visibility: hidden;
+}
+"""
+st.markdown(hide_github_icon, unsafe_allow_html=True)
+
 BACKEND_URL = os.getenv(
     # "BACKEND_URL", "https://reviewerselectionv2-xybezttb3a-ew.a.run.app"
     "BACKEND_URL",
@@ -150,11 +158,3 @@ else:
             use_container_width=True,
         )
     )
-
-# Add custom CSS to hide the GitHub icon
-hide_github_icon = """
-#GithubIcon {
-  visibility: hidden;
-}
-"""
-st.markdown(hide_github_icon, unsafe_allow_html=True)
