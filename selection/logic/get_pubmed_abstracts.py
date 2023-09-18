@@ -10,7 +10,7 @@ base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
 
 def query_eutils(pmids):
-    """Query pubmed API for pmids, returns XML.
+    """Query pubmed API for pmids, returns XML as default.
     For over 200 IDs, the request should be made using the HTTP POST method"""
     params = {
         "api_key": api_key,
@@ -38,18 +38,16 @@ def get_pubyear(article):
 def get_authors(article):
     """Return article authors in format 'LastName, ForeName'"""
     return [
-        ", ".join([author.find("LastName").text, author.find("ForeName").text])
-        for author in article.find(".//AuthorList")
-    ]
-
-
-def get_author_affiliations(article):
-    """
-    Returns article affiliations.
-    Check: does only the first author have affiliations?)
-    """
-    return [
-        text_or_none(author.find("AffiliationInfo/Affiliation"))
+        ", ".join(
+            filter(
+                None,
+                [
+                    text_or_none(author.find("LastName")),
+                    text_or_none(author.find("ForeName")),
+                    text_or_none(author.find("AffiliationInfo/Affiliation")),
+                ],
+            )
+        )
         for author in article.find(".//AuthorList")
     ]
 
@@ -65,7 +63,8 @@ def get_journal_issn(article):
 
 
 def get_abstract(article):
-    """Return article abstract"""
+    """Return article abstract.
+    Check: are multiple abstracts possible?"""
     return text_or_none(article.find(".//AbstractText"))
 
 
@@ -89,7 +88,6 @@ def create_ref_df(root):
             "title": [get_title(article) for article in root],
             "year": [get_pubyear(article) for article in root],
             "authors": [get_authors(article) for article in root],
-            "author_affil": [get_author_affiliations(article) for article in root],
             "journal_name": [get_journal_name(article) for article in root],
             "journal_issn": [get_journal_issn(article) for article in root],
             "abstract": [get_abstract(article) for article in root],
