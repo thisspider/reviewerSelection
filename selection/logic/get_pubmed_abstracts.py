@@ -36,7 +36,7 @@ def get_pubyear(article):
 
 
 def get_authors(article):
-    """Return article authors in format 'LastName, ForeName'"""
+    """Return article authors in format 'LastName, ForeName, Affiliaton'"""
     return [
         ", ".join(
             filter(
@@ -69,6 +69,7 @@ def get_abstract(article):
 
 
 def get_ref_pmids(article):
+    """Return pubmed IDs of references"""
     refs = []
     if article.find(".//ReferenceList") is not None:
         for ref in article.find(".//ReferenceList"):
@@ -79,7 +80,7 @@ def get_ref_pmids(article):
 
 
 def create_ref_df(root):
-    """Return journal ISSN"""
+    """Return dataframe with information on all cited references including abstracts"""
 
     root = ET.fromstring(query_eutils(pmids))
 
