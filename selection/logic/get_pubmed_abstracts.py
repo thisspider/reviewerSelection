@@ -17,11 +17,11 @@ def query_eutils(pmids):
         "db": "pubmed",
         "id": pmids,
     }
-    return requests.get(base_url, params).text
+    return requests.post(base_url, params).text
 
 
 def text_or_none(field):
-    """Return the text of an xml element or empty string if the element is None."""
+    """Return the text of an xml element or None if the element is missing."""
     return field.text if field is not None else None
 
 
