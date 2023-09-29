@@ -1,11 +1,11 @@
 import spacy
 
-model_name = "en_core_web_lg"
+model_name = "en_core_web_md"
 if not spacy.util.is_package(model_name):
     print(f"Downloading {model_name} for Spacy...")
     spacy.cli.download(model_name)
 
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_md")
 
 
 def calculate_spacy_similarity(target_pdf_abstract, candidate_df):

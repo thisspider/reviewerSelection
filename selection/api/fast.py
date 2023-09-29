@@ -154,4 +154,4 @@ def reviewers(
 
 @app.get("/version")
 def version():
-    return 0.11
+    return 0.13
