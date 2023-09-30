@@ -128,13 +128,13 @@ else:
                 st.exception(response.json())
             st.write("Generating results.  :heavy_check_mark:")
             st.session_state.results = response.json()
-            st.download_button(
+            """st.download_button(
             "Press to Download",
             st.session_state.results.to_csv(index=False).encode('utf-8'),
             "file.csv",
             "text/csv",
             key='download-csv'
-            )
+            )"""
             st.dataframe(st.session_state.results)
             finished = True
 
