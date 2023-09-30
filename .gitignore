@@ -47,3 +47,7 @@ htmlcov
 
 # MacOS stuff
 .DS_Store
+
+# Keys
+.gcp_service_account.json
+reviewerselection-400614-5b904ed59e77.json
