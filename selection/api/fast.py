@@ -131,7 +131,8 @@ def reviewers(
         result = cosine_match(abstract, candidate_df)
     elif model == ModelName.tfidf_all:
         # Match pdf abstract with all abstracts from relevant journals
-        result = load_tfidf_cosine_match(pd.read_csv(OA_WORKS_FILE), abstract)
+        # result = load_tfidf_cosine_match(pd.read_csv(OA_WORKS_FILE), abstract)
+        result = load_tfidf_cosine_match(candidate_df, abstract) # try tfidf_all only on candidate list
     elif model == ModelName.spacy:
         # Match pdf abstract with all abstracts from relevant journals
         result = calculate_spacy_similarity(abstract, candidate_df)
