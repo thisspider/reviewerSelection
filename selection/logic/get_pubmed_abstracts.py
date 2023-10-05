@@ -1,3 +1,6 @@
+"""Query Pubmed API for article information including abstracts with list of
+pubmed IDs (pmids) """
+
 import os
 import requests
 import xml.etree.ElementTree as ET
@@ -5,19 +8,20 @@ import pandas as pd
 
 
 pmids = "19008416,18927361,18787170,18487186,18239126,18239125"
-api_key = os.environ.get("NCBI_API_KEY", None)
-base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+API_KEY = os.environ.get("NCBI_API_KEY", None)
+BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+DATABASE = "pubmed"
 
 
 def query_eutils(pmids):
     """Query pubmed API for pmids, returns XML as default.
     For over 200 IDs, the request should be made using the HTTP POST method"""
     params = {
-        "api_key": api_key,
-        "db": "pubmed",
+        "api_key": API_KEY,
+        "db": DATABASE,
         "id": pmids,
     }
-    return requests.post(base_url, params).text
+    return requests.post(BASE_URL, params).text
 
 
 def text_or_none(field):
@@ -79,10 +83,22 @@ def get_ref_pmids(article):
     return refs
 
 
-def create_ref_df(root):
-    """Return dataframe with information on all cited references including abstracts"""
+def get_first_layer_refs(pmids):
+    """Return list of pmids of first layer references"""
 
     root = ET.fromstring(query_eutils(pmids))
+    return ",".join(
+        [x for list in [get_ref_pmids(article) for article in root] for x in list]
+    )
+
+
+def create_ref_df(pmids):
+    """
+    Return dataframe with information on all second layer references
+    including abstracts
+    """
+
+    root = ET.fromstring(query_eutils(get_first_layer_refs(pmids)))
 
     return pd.DataFrame(
         {
@@ -95,3 +111,10 @@ def create_ref_df(root):
             "references": [get_ref_pmids(article) for article in root],
         }
     )
+
+
+final_df = create_ref_df(pmids)
+
+# print(final_df.head())
+# print(final_df.shape)
+# print(final_df)
