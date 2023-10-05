@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 
 
-pmids = "19008416,18927361,18787170,18487186,18239126,18239125"
+pmids = ["19008416", "18927361", "18787170", "18487186", "18239126", "18239125"]
 API_KEY = os.environ.get("NCBI_API_KEY", None)
 BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 DATABASE = "pubmed"
@@ -19,7 +19,7 @@ def query_eutils(pmids):
     params = {
         "api_key": API_KEY,
         "db": DATABASE,
-        "id": pmids,
+        "id": ",".join(pmids),
     }
     return requests.post(BASE_URL, params).text
 
@@ -32,6 +32,11 @@ def text_or_none(field):
 def get_title(article):
     """Return article title"""
     return text_or_none(article.find(".//ArticleTitle"))
+
+
+def get_pmid(article):
+    """Return article pmid"""
+    return text_or_none(article.find(".//PMID"))
 
 
 def get_pubyear(article):
@@ -83,38 +88,29 @@ def get_ref_pmids(article):
     return refs
 
 
-def get_first_layer_refs(pmids):
-    """Return list of pmids of first layer references"""
-
-    root = ET.fromstring(query_eutils(pmids))
-    return ",".join(
-        [x for list in [get_ref_pmids(article) for article in root] for x in list]
-    )
-
-
 def create_ref_df(pmids):
     """
-    Return dataframe with information on all second layer references
+    Return dataframe with information on all first and second layer references
     including abstracts
     """
-
-    root = ET.fromstring(query_eutils(get_first_layer_refs(pmids)))
+    root_tmp = ET.fromstring(query_eutils(pmids))
+    first_layer_refs = [
+        x for list in [get_ref_pmids(article) for article in root_tmp] for x in list
+    ]
+    root = ET.fromstring(query_eutils(pmids + first_layer_refs))
 
     return pd.DataFrame(
         {
             "title": [get_title(article) for article in root],
+            "pmid": [get_pmid(article) for article in root],
             "year": [get_pubyear(article) for article in root],
             "authors": [get_authors(article) for article in root],
             "journal_name": [get_journal_name(article) for article in root],
             "journal_issn": [get_journal_issn(article) for article in root],
             "abstract": [get_abstract(article) for article in root],
-            "references": [get_ref_pmids(article) for article in root],
+            "ref_pmids": [get_ref_pmids(article) for article in root],
         }
     )
 
 
-final_df = create_ref_df(pmids)
-
-# print(final_df.head())
-# print(final_df.shape)
-# print(final_df)
+final = create_ref_df(pmids)
